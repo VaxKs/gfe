@@ -1732,7 +1732,7 @@ do
 			Min = Info.Min,
 			Max = Info.Max,
 			Rounding = Info.Rounding,
-			MaxSize = 232,
+			MaxSize = 200,
 			Type = 'Slider',
 			Callback = Info.Callback or function(Value) end
 		}
@@ -1743,7 +1743,7 @@ do
 		if not Info.Compact then
 			Library:CreateLabel({
 				Size = UDim2.new(1, 0, 0, 10),
-				TextSize = 14,
+				TextSize = 12,
 				Text = Info.Text,
 				TextXAlignment = Enum.TextXAlignment.Left,
 				TextYAlignment = Enum.TextYAlignment.Bottom,
@@ -1757,7 +1757,7 @@ do
 		local SliderOuter = Library:Create('Frame', {
 			BackgroundColor3 = Color3.new(0, 0, 0),
 			BorderColor3 = Color3.new(0, 0, 0),
-			Size = UDim2.new(1, -4, 0, 13),
+			Size = UDim2.new(1, -4, 0, 8), -- Smaller height for a skinnier slider
 			ZIndex = 5,
 			Parent = Container
 		})
@@ -1807,11 +1807,13 @@ do
 		})
 	
 		local DisplayLabel = Library:CreateLabel({
-			Size = UDim2.new(1, 0, 1, 0),
-			TextSize = 14,
+			Size = UDim2.new(1, -10, 1, 0),
+			Position = UDim2.new(0, 10, 0, -20), -- Positioned at the top right of the slider
+			TextSize = 12, -- Smaller text size
 			Text = 'Infinite',
+			TextXAlignment = Enum.TextXAlignment.Right, -- Align text to the right
 			ZIndex = 9,
-			Parent = SliderInner
+			Parent = SliderOuter
 		})
 	
 		Library:OnHighlight(SliderOuter, SliderOuter,
@@ -1830,7 +1832,7 @@ do
 	
 		function Slider:Display()
 			local Suffix = Info.Suffix or ''
-			DisplayLabel.Text = Info.Compact and (Info.Text .. ': ' .. Slider.Value .. Suffix) or
+			DisplayLabel.Text = Info.Compact and (Slider.Value .. Suffix) or
 								(Info.HideMax and string.format('%s', Slider.Value .. Suffix) or
 								string.format('%s/%s', Slider.Value .. Suffix, Slider.Max .. Suffix))
 	
@@ -1900,6 +1902,7 @@ do
 	
 		return Slider
 	end
+	
 	
 	function Funcs:AddDropdown(Idx, Info)
 		if Info.SpecialType == 'Player' then
