@@ -366,25 +366,25 @@ function Library:RemoveFromRegistry(Instance)
 end;
 
 function Library:UpdateColorsUsingRegistry()
-	-- TODO: Could have an 'active' list of objects
-	-- where the active list only contains Visible objects.
+    -- TODO: Could have an 'active' list of objects
+    -- where the active list only contains Visible objects.
 
-	-- IMPL: Could setup .Changed events on the AddToRegistry function
-	-- that listens for the 'Visible' propert being changed.
-	-- Visible: true => Add to active list, and call UpdateColors function
-	-- Visible: false => Remove from active list.
+    -- IMPL: Could setup .Changed events on the AddToRegistry function
+    -- that listens for the 'Visible' propert being changed.
+    -- Visible: true => Add to active list, and call UpdateColors function
+    -- Visible: false => Remove from active list.
 
-	-- The above would be especially efficient for a rainbow menu color or live color-changing.
+    -- The above would be especially efficient for a rainbow menu color or live color-changing.
 
-	for Idx, Object in next, Library.Registry do
-		for Property, ColorIdx in next, Object.Properties do
-			if type(ColorIdx) == 'string' then
-				Object.Instance[Property] = Library[ColorIdx];
-			elseif type(ColorIdx) == 'function' then
-				Object.Instance[Property] = ColorIdx()
-			end
-		end;
-	end;
+    for Idx, Object in next, Library.Registry do
+        for Property, ColorIdx in next, Object.Properties do
+            if type(ColorIdx) == 'string' then
+                Object.Instance[Property] = Library[ColorIdx];
+            elseif type(ColorIdx) == 'function' then
+                Object.Instance[Property] = ColorIdx()
+            end
+        end;
+    end;
 end;
 
 function Library:GiveSignal(Signal)
@@ -1375,15 +1375,16 @@ do
 		local Groupbox = self;
 		local Container = Groupbox.Container;
 
-		local TextLabel = Library:CreateLabel({
-			Size = UDim2.new(1, -4, 0, 15);
-			TextSize = 14;
-			Text = Text;
-			TextWrapped = DoesWrap or false,
-			TextXAlignment = Enum.TextXAlignment.Left;
-			ZIndex = 5;
-			Parent = Container;
-		});
+        local TextLabel = Library:CreateLabel({
+            Size = UDim2.new(1, -4, 0, 15);
+            TextSize = 14;
+            Text = Text;
+            TextWrapped = DoesWrap or false,
+            RichText = true,
+            TextXAlignment = Enum.TextXAlignment.Left;
+            ZIndex = 5;
+            Parent = Container;
+        });
 
 		if DoesWrap then
 			local Y = select(2, Library:GetTextBounds(Text, Library.Font, 14, Vector2.new(TextLabel.AbsoluteSize.X, math.huge)))
@@ -2908,15 +2909,16 @@ function Library:Notify(Text, Time)
 		end
 	});
 
-	local NotifyLabel = Library:CreateLabel({
-		Position = UDim2.new(0, 4, 0, 0);
-		Size = UDim2.new(1, -4, 1, 0);
-		Text = Text;
-		TextXAlignment = Enum.TextXAlignment.Left;
-		TextSize = 14;
-		ZIndex = 103;
-		Parent = InnerFrame;
-	});
+    local NotifyLabel = Library:CreateLabel({
+        Position = UDim2.new(0, 4, 0, 0);
+        Size = UDim2.new(1, -4, 1, 0);
+        Text = Text;
+        RichText = true;
+        TextXAlignment = Enum.TextXAlignment.Left;
+        TextSize = 14;
+        ZIndex = 103;
+        Parent = InnerFrame;
+    });
 
 	local LeftColor = Library:Create('Frame', {
 		BackgroundColor3 = Library.AccentColor;
