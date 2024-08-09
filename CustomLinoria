@@ -1732,7 +1732,7 @@ do
 			Min = Info.Min,
 			Max = Info.Max,
 			Rounding = Info.Rounding,
-			MaxSize = 192,
+			MaxSize = 232, -- Reverted to original size
 			Type = 'Slider',
 			Callback = Info.Callback or function(Value) end
 		}
@@ -1745,7 +1745,7 @@ do
 				Size = UDim2.new(0.5, 0, 0, 14),
 				Position = UDim2.new(0, 0, 0, -12),
 				TextSize = 12,
-				Text = Info.Text,
+				Text = "<b>".. Info.Text .."</b>", -- Bolded Title
 				TextXAlignment = Enum.TextXAlignment.Left,
 				ZIndex = 5,
 				Parent = Container
@@ -1755,7 +1755,8 @@ do
 				Size = UDim2.new(0.5, -10, 0, 14),
 				Position = UDim2.new(0.5, 0, 0, -12),
 				TextSize = 12,
-				Text = 'Infinite',
+				Text = '<b>Infinite</b>', -- Bolded Value/Max
+				RichText = true, -- Allows rich text like bold
 				TextXAlignment = Enum.TextXAlignment.Right,
 				ZIndex = 5,
 				Parent = Container
@@ -1767,7 +1768,7 @@ do
 		local SliderOuter = Library:Create('Frame', {
 			BackgroundColor3 = Color3.new(0, 0, 0),
 			BorderColor3 = Color3.new(0, 0, 0),
-			Size = UDim2.new(1, -4, 0, 8),
+			Size = UDim2.new(1, -4, 0, 13),
 			ZIndex = 5,
 			Parent = Container
 		})
@@ -1832,9 +1833,9 @@ do
 	
 		function Slider:Display()
 			local Suffix = Info.Suffix or ''
-			DisplayLabel.Text = Info.Compact and (Slider.Value .. Suffix) or
-								(Info.HideMax and string.format('%s', Slider.Value .. Suffix) or
-								string.format('%s/%s', Slider.Value .. Suffix, Slider.Max .. Suffix))
+			DisplayLabel.Text = Info.Compact and ('<b>'.. Slider.Value .. Suffix ..'</b>') or
+								(Info.HideMax and string.format('<b>%s</b>', Slider.Value .. Suffix) or
+								string.format('<b>%s/%s</b>', Slider.Value .. Suffix, Slider.Max .. Suffix))
 	
 			local X = math.ceil(Library:MapValue(Slider.Value, Slider.Min, Slider.Max, 0, Slider.MaxSize))
 			Fill.Size = UDim2.new(0, X, 1, 0)
@@ -1902,6 +1903,7 @@ do
 	
 		return Slider
 	end
+	
 	
 	
 	
