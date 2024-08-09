@@ -1,19 +1,17 @@
 local httpService = game:GetService('HttpService')
 local ThemeManager = {} do
-	ThemeManager.Folder = "Zenith Hub"
+	ThemeManager.Folder = 'LinoriaLibSettings'
 	-- if not isfolder(ThemeManager.Folder) then makefolder(ThemeManager.Folder) end
 
 	ThemeManager.Library = nil
 	ThemeManager.BuiltInThemes = {
-    		['Zenith Hub']     = { 1, httpService:JSONDecode('{"FontColor":"cacaca","MainColor":"191919","AccentColor":"ffd600","BackgroundColor":"141414","OutlineColor":"000000"}') },
-		['Default'] 		= { 2, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1c1c1c","AccentColor":"0055ff","BackgroundColor":"141414","OutlineColor":"323232"}') },
-		['BBot'] 			= { 3, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1e1e","AccentColor":"7e48a3","BackgroundColor":"232323","OutlineColor":"141414"}') },
-		['Fatality']		= { 4, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1842","AccentColor":"c50754","BackgroundColor":"191335","OutlineColor":"3c355d"}') },
-		['Jester'] 			= { 5, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"242424","AccentColor":"db4467","BackgroundColor":"1c1c1c","OutlineColor":"373737"}') },
-		['Mint'] 			= { 6, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"242424","AccentColor":"3db488","BackgroundColor":"1c1c1c","OutlineColor":"373737"}') },
-		['Tokyo Night'] 	= { 7, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"191925","AccentColor":"6759b3","BackgroundColor":"16161f","OutlineColor":"323232"}') },
-		['Ubuntu'] 			= { 8, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"3e3e3e","AccentColor":"e2581e","BackgroundColor":"323232","OutlineColor":"191919"}') },
-		['Quartz'] 			= { 9, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"232330","AccentColor":"426e87","BackgroundColor":"1d1b26","OutlineColor":"27232f"}') },
+		['Default'] 		= { 1, httpService:JSONDecode('{"FontColor":"BFBFBF","MainColor":"0F0F0F","AccentColor":"d17bff","BackgroundColor":"101010","OutlineColor":"0B0B0B"}') },
+		['Venom'] 		= { 2, httpService:JSONDecode('{"FontColor":"BFBFBF","MainColor":"0E0E0E","AccentColor":"ff0000","BackgroundColor":"0E0E0E","OutlineColor":"0B0B0B"}') },
+		['Cyan'] 		= { 1, httpService:JSONDecode('{"FontColor":"BFBFBF","MainColor":"0F0F0F","AccentColor":"00ffef","BackgroundColor":"101010","OutlineColor":"0B0B0B"}') },
+		['Burn'] 		= { 4, httpService:JSONDecode('{"FontColor":"FF8200","MainColor":"0C0C0C","AccentColor":"FF8200","BackgroundColor":"0C0C0C","OutlineColor":"0C0C0C"}') },
+		['Fatality'] 		= { 5, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1842","AccentColor":"c50754","BackgroundColor":"191335","OutlineColor":"28204F"}') },
+		['GameSense'] 		= { 6, httpService:JSONDecode('{"FontColor":"FFFFFF","MainColor":"171717","AccentColor":"98E22E","BackgroundColor":"171717","OutlineColor":"31371C"}') },
+		['Comet.pub'] 		= { 7, httpService:JSONDecode('{"FontColor":"5E5E5E","MainColor":"0F0F0F","AccentColor":"5D589D","BackgroundColor":"0F0F0F","OutlineColor":"191919"}') },
 	}
 
 	function ThemeManager:ApplyTheme(theme)
@@ -21,8 +19,6 @@ local ThemeManager = {} do
 		local data = customThemeData or self.BuiltInThemes[theme]
 
 		if not data then return end
-
-		-- custom themes are just regular dictionaries instead of an array with { index, dictionary }
 
 		local scheme = data[2]
 		for idx, col in next, customThemeData or scheme do
@@ -50,7 +46,7 @@ local ThemeManager = {} do
 	end
 
 	function ThemeManager:LoadDefault()		
-		local theme = 'Zenith Hub'
+		local theme = 'Default'
 		local content = isfile(self.Folder .. '/themes/default.txt') and readfile(self.Folder .. '/themes/default.txt')
 
 		local isDefault = true
@@ -77,6 +73,7 @@ local ThemeManager = {} do
 	end
 
 	function ThemeManager:CreateThemeManager(groupbox)
+        groupbox:AddDivider()
 		groupbox:AddLabel('Background color'):AddColorPicker('BackgroundColor', { Default = self.Library.BackgroundColor });
 		groupbox:AddLabel('Main color')	:AddColorPicker('MainColor', { Default = self.Library.MainColor });
 		groupbox:AddLabel('Accent color'):AddColorPicker('AccentColor', { Default = self.Library.AccentColor });
@@ -103,21 +100,22 @@ local ThemeManager = {} do
 		end)
 
 		groupbox:AddDivider()
-		groupbox:AddInput('ThemeManager_CustomThemeName', { Text = 'Custom theme name' })
 		groupbox:AddDropdown('ThemeManager_CustomThemeList', { Text = 'Custom themes', Values = self:ReloadCustomThemes(), AllowNull = true, Default = 1 })
-		groupbox:AddDivider()
-		
-		groupbox:AddButton('Save theme', function() 
+		groupbox:AddInput('ThemeManager_CustomThemeName', { Text = 'Custom theme name' })
+
+		groupbox:AddButton('Load theme', function() 
+			self:ApplyTheme(Options.ThemeManager_CustomThemeList.Value) 
+		end):AddButton('Save theme', function() 
 			self:SaveCustomTheme(Options.ThemeManager_CustomThemeName.Value)
 
-			Options.ThemeManager_CustomThemeList:SetValues(self:ReloadCustomThemes())
+			Options.ThemeManager_CustomThemeList.Values = self:ReloadCustomThemes()
+			Options.ThemeManager_CustomThemeList:SetValues()
 			Options.ThemeManager_CustomThemeList:SetValue(nil)
-		end):AddButton('Load theme', function() 
-			self:ApplyTheme(Options.ThemeManager_CustomThemeList.Value) 
 		end)
 
 		groupbox:AddButton('Refresh list', function()
-			Options.ThemeManager_CustomThemeList:SetValues(self:ReloadCustomThemes())
+			Options.ThemeManager_CustomThemeList.Values = self:ReloadCustomThemes()
+			Options.ThemeManager_CustomThemeList:SetValues()
 			Options.ThemeManager_CustomThemeList:SetValue(nil)
 		end)
 
@@ -247,5 +245,4 @@ local ThemeManager = {} do
 
 	ThemeManager:BuildFolderTree()
 end
-
 return ThemeManager
