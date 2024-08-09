@@ -1757,7 +1757,7 @@ do
 		local SliderOuter = Library:Create('Frame', {
 			BackgroundColor3 = Library.BackgroundColor;
 			BorderColor3 = Library.OutlineColor;
-			Size = UDim2.new(1, -4, 0, 13);
+			Size = UDim2.new(1, -4, 0, 16);
 			ZIndex = 5;
 			Parent = Container;
 		})
@@ -1808,7 +1808,8 @@ do
 		})
 		
 		local function UpdateSlider(Slider, Amount)
-			local NewValue = Slider.Value + Amount
+			local IncrementValue = Slider.Rounding == 0 and 1 or Slider.Rounding
+			local NewValue = Slider.Value + (Amount * IncrementValue)
 			Slider:SetValue(NewValue)
 		end
 		
@@ -1829,7 +1830,9 @@ do
 		
 		local DecreaseButton = Library:Create('TextButton', {
 			Text = '-';
-			Size = UDim2.new(0, 20, 1, 0);
+			BackgroundColor3 = Library.BackgroundColor;
+			BorderColor3 = Library.OutlineColor;
+			Size = UDim2.new(0, 20, 1, 0); 
 			Position = UDim2.new(-0.1, 0, 0, 0);
 			ZIndex = 10;
 			Parent = SliderOuter;
@@ -1837,7 +1840,9 @@ do
 		
 		local IncreaseButton = Library:Create('TextButton', {
 			Text = '+';
-			Size = UDim2.new(0, 20, 1, 0);
+			BackgroundColor3 = Library.BackgroundColor;
+			BorderColor3 = Library.OutlineColor;
+			Size = UDim2.new(0, 20, 1, 0); 
 			Position = UDim2.new(1, 0, 0, 0);
 			ZIndex = 10;
 			Parent = SliderOuter;
@@ -1859,8 +1864,8 @@ do
 			end)
 		end
 		
-		HandleButtonPress(DecreaseButton, -Slider.Rounding)
-		HandleButtonPress(IncreaseButton, Slider.Rounding)
+		HandleButtonPress(DecreaseButton, -1)
+		HandleButtonPress(IncreaseButton, 1)		
 
 		local DisplayLabel = Library:CreateLabel({
 			Size = UDim2.new(1, 0, 1, 0);
