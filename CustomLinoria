@@ -958,15 +958,21 @@ function Funcs:AddKeyPicker(Idx, Info)
 	function KeyPicker:SetValue(Data)
 		local Key, Mode = Data[1], Data[2]
 	
-		for _, Option in pairs(Options) do
-			if Option.Type == 'KeyPicker' and Option.Value == Key and Option ~= KeyPicker then
-				return
+		if Options then
+			for _, Option in pairs(Options) do
+				if Option.Type == 'KeyPicker' and Option.Value == Key and Option ~= KeyPicker then
+					return
+				end
 			end
 		end
 	
 		DisplayLabel.Text = Key
 		KeyPicker.Value = Key
-		ModeButtons[Mode]:Select()
+		
+		if ModeButtons[Mode] then
+			ModeButtons[Mode]:Select()
+		end
+	
 		KeyPicker:Update()
 	end
 
@@ -1033,13 +1039,15 @@ function Funcs:AddKeyPicker(Idx, Info)
 						Key = 'MB2'
 					end
 	
-					for _, Option in pairs(Options) do
-						if Option.Type == 'KeyPicker' and Option.Value == Key and Option ~= KeyPicker then
-							Break = true
-							Picking = false
-							DisplayLabel.Text = KeyPicker.Value
-							Event:Disconnect()
-							return
+					if Options then
+						for _, Option in pairs(Options) do
+							if Option.Type == 'KeyPicker' and Option.Value == Key and Option ~= KeyPicker then
+								Break = true
+								Picking = false
+								DisplayLabel.Text = KeyPicker.Value
+								Event:Disconnect()
+								return
+							end
 						end
 					end
 	
@@ -1061,6 +1069,7 @@ function Funcs:AddKeyPicker(Idx, Info)
 			end
 		end)
 	end)
+	
 
 	Library:GiveSignal(InputService.InputBegan:Connect(function(Input, t)
 		pcall(function()
