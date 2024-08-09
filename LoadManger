@@ -86,7 +86,7 @@ if isloaded then
                 if self.Ignore[idx] then continue end
 
                 table.insert(data.objects, self.Parser[option.Type].Save(idx, option))
-            end	
+            end    
 
             local success, encoded = pcall(httpService.JSONEncode, httpService, data)
             if not success then
@@ -113,10 +113,24 @@ if isloaded then
             return true
         end
 
+        function SaveManager:Delete(name)
+            if (not name) then
+                return false, 'no config file is selected'
+            end
+
+            local fullPath = self.Folder .. '/settings/' .. name .. '.json'
+            if not isfile(fullPath) then
+                return false, 'file does not exist'
+            end
+
+            delfile(fullPath)
+            return true
+        end
+
         function SaveManager:IgnoreThemeSettings()
             self:SetIgnoreIndexes({ 
-                "BackgroundColor", "MainColor", "AccentColor", "OutlineColor", "FontColor", -- themes
-                "ThemeManager_ThemeList", 'ThemeManager_CustomThemeList', 'ThemeManager_CustomThemeName', -- themes
+                "BackgroundColor", "MainColor", "AccentColor", "OutlineColor", "FontColor", 
+                "ThemeManager_ThemeList", 'ThemeManager_CustomThemeList', 'ThemeManager_CustomThemeName', 
             })
         end
 
@@ -142,8 +156,6 @@ if isloaded then
             for i = 1, #list do
                 local file = list[i]
                 if file:sub(-5) == '.json' then
-                    -- i hate this but it has to be done ...
-
                     local pos = file:find('.json', 1, true)
                     local start = pos
 
@@ -227,6 +239,23 @@ if isloaded then
                 end
 
                 self.Library:Notify(string.format('Overwrote config %q', name))
+            end)
+
+            section:AddButton('Delete config', function()
+                local name = Options.SaveManager_ConfigList.Value
+                if name == nil or name == '' then
+                    return self.Library:Notify('No config selected', 2)
+                end
+
+                local success, err = self:Delete(name)
+                if not success then
+                    return self.Library:Notify('Failed to delete config: ' .. err)
+                end
+
+                self.Library:Notify(string.format('Deleted config %q', name))
+                Options.SaveManager_ConfigList.Values = self:RefreshConfigList()
+                Options.SaveManager_ConfigList:SetValues()
+                Options.SaveManager_ConfigList:SetValue(nil)
             end)
             
             section:AddButton('Autoload config', function()
@@ -350,7 +379,7 @@ else
                 if self.Ignore[idx] then continue end
 
                 table.insert(data.objects, self.Parser[option.Type].Save(idx, option))
-            end	
+            end    
 
             local success, encoded = pcall(httpService.JSONEncode, httpService, data)
             if not success then
@@ -377,10 +406,24 @@ else
             return true
         end
 
+        function SaveManager:Delete(name)
+            if (not name) then
+                return false, 'no config file is selected'
+            end
+
+            local fullPath = self.Folder .. '/settings/' .. name .. '.json'
+            if not isfile(fullPath) then
+                return false, 'file does not exist'
+            end
+
+            delfile(fullPath)
+            return true
+        end
+
         function SaveManager:IgnoreThemeSettings()
             self:SetIgnoreIndexes({ 
-                "BackgroundColor", "MainColor", "AccentColor", "OutlineColor", "FontColor", -- themes
-                "ThemeManager_ThemeList", 'ThemeManager_CustomThemeList', 'ThemeManager_CustomThemeName', -- themes
+                "BackgroundColor", "MainColor", "AccentColor", "OutlineColor", "FontColor", 
+                "ThemeManager_ThemeList", 'ThemeManager_CustomThemeList', 'ThemeManager_CustomThemeName', 
             })
         end
 
@@ -406,8 +449,6 @@ else
             for i = 1, #list do
                 local file = list[i]
                 if file:sub(-5) == '.json' then
-                    -- i hate this but it has to be done ...
-
                     local pos = file:find('.json', 1, true)
                     local start = pos
 
@@ -491,6 +532,23 @@ else
                 end
 
                 self.Library:Notify(string.format('Overwrote config %q', name))
+            end)
+
+            section:AddButton('Delete config', function()
+                local name = Options.SaveManager_ConfigList.Value
+                if name == nil or name == '' then
+                    return self.Library:Notify('No config selected', 2)
+                end
+
+                local success, err = self:Delete(name)
+                if not success then
+                    return self.Library:Notify('Failed to delete config: ' .. err)
+                end
+
+                self.Library:Notify(string.format('Deleted config %q', name))
+                Options.SaveManager_ConfigList.Values = self:RefreshConfigList()
+                Options.SaveManager_ConfigList:SetValues()
+                Options.SaveManager_ConfigList:SetValue(nil)
             end)
             
             section:AddButton('Autoload config', function()
