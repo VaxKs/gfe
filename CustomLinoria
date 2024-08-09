@@ -1732,7 +1732,7 @@ do
 			Min = Info.Min,
 			Max = Info.Max,
 			Rounding = Info.Rounding,
-			MaxSize = 196,  -- Adjusted to fit within the slider's frame correctly
+			MaxSize = 192,
 			Type = 'Slider',
 			Callback = Info.Callback or function(Value) end
 		}
@@ -1741,28 +1741,28 @@ do
 		local Container = Groupbox.Container
 	
 		if not Info.Compact then
-			Library:CreateLabel({
-				Size = UDim2.new(1, 0, 0, 10),
+			local TitleLabel = Library:CreateLabel({
+				Size = UDim2.new(0.5, 0, 0, 14),
+				Position = UDim2.new(0, 0, 0, -12),
 				TextSize = 12,
 				Text = Info.Text,
 				TextXAlignment = Enum.TextXAlignment.Left,
-				TextYAlignment = Enum.TextYAlignment.Bottom,
+				ZIndex = 5,
+				Parent = Container
+			})
+	
+			local DisplayLabel = Library:CreateLabel({
+				Size = UDim2.new(0.5, -10, 0, 14),
+				Position = UDim2.new(0.5, 0, 0, -12),
+				TextSize = 12,
+				Text = 'Infinite',
+				TextXAlignment = Enum.TextXAlignment.Right,
 				ZIndex = 5,
 				Parent = Container
 			})
 	
 			Groupbox:AddBlank(3)
 		end
-	
-		local DisplayLabel = Library:CreateLabel({
-			Size = UDim2.new(1, -10, 0, 14),
-			Position = UDim2.new(0, 0, 0, -2),
-			TextSize = 12,
-			Text = 'Infinite',
-			TextXAlignment = Enum.TextXAlignment.Right,
-			ZIndex = 5,
-			Parent = Container
-		})
 	
 		local SliderOuter = Library:Create('Frame', {
 			BackgroundColor3 = Color3.new(0, 0, 0),
@@ -1902,6 +1902,7 @@ do
 	
 		return Slider
 	end
+	
 	
 	
 	function Funcs:AddDropdown(Idx, Info)
