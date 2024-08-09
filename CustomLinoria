@@ -1754,10 +1754,20 @@ do
 			Groupbox:AddBlank(3)
 		end
 	
+		local DisplayLabel = Library:CreateLabel({
+			Size = UDim2.new(1, -10, 0, 14),
+			Position = UDim2.new(0, 10, 0, -12),
+			TextSize = 12,
+			Text = 'Infinite',
+			TextXAlignment = Enum.TextXAlignment.Right,
+			ZIndex = 5,
+			Parent = Container
+		})
+	
 		local SliderOuter = Library:Create('Frame', {
 			BackgroundColor3 = Color3.new(0, 0, 0),
 			BorderColor3 = Color3.new(0, 0, 0),
-			Size = UDim2.new(1, -4, 0, 8), -- Smaller height for a skinnier slider
+			Size = UDim2.new(1, -4, 0, 8),
 			ZIndex = 5,
 			Parent = Container
 		})
@@ -1804,16 +1814,6 @@ do
 	
 		Library:AddToRegistry(HideBorderRight, {
 			BackgroundColor3 = 'AccentColor'
-		})
-	
-		local DisplayLabel = Library:CreateLabel({
-			Size = UDim2.new(1, -10, 1, 0),
-			Position = UDim2.new(0, 10, 0, -20), -- Positioned at the top right of the slider
-			TextSize = 12, -- Smaller text size
-			Text = 'Infinite',
-			TextXAlignment = Enum.TextXAlignment.Right, -- Align text to the right
-			ZIndex = 9,
-			Parent = SliderOuter
 		})
 	
 		Library:OnHighlight(SliderOuter, SliderOuter,
