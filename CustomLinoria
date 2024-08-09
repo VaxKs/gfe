@@ -37,6 +37,7 @@ local Library = {
     BackgroundColor = Color3.fromRGB(16, 16, 16);
     AccentColor = Color3.fromRGB(208, 123, 255);
     OutlineColor = Color3.fromRGB(11, 11, 11);
+    RiskColor = Color3.fromRGB(255, 50, 50),
 
 	Black = Color3.new(0, 0, 0);
 	Font = Enum.Font.Code,
