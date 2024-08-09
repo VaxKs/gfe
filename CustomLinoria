@@ -30,12 +30,13 @@ local Library = {
 
 	HudRegistry = {};
 
-	FontColor = Color3.fromRGB(255, 255, 255);
-	MainColor = Color3.fromRGB(28, 28, 28);
-	BackgroundColor = Color3.fromRGB(20, 20, 20);
-	AccentColor = Color3.fromRGB(0, 85, 255);
-	OutlineColor = Color3.fromRGB(50, 50, 50);
-	RiskColor = Color3.fromRGB(255, 50, 50),
+	FontColor = Color3.fromRGB(191, 191, 191);
+    FontColor2 = Color3.fromRGB(198, 198, 198);
+    MainColor = Color3.fromRGB(15, 15, 15);
+    MainColor2 = Color3.fromRGB(23, 23, 23);
+    BackgroundColor = Color3.fromRGB(16, 16, 16);
+    AccentColor = Color3.fromRGB(208, 123, 255);
+    OutlineColor = Color3.fromRGB(11, 11, 11);
 
 	Black = Color3.new(0, 0, 0);
 	Font = Enum.Font.Code,
@@ -131,6 +132,37 @@ function Library:Create(Class, Properties)
 	return _Instance;
 end;
 
+function Library:CreateLabel(Properties, IsHud)
+    local _Instance = Library:Create('TextLabel', {
+        BackgroundTransparency = 1;
+        Font = Enum.Font.Code;
+        TextColor3 = Library.FontColor or Library.AccentColor;
+        TextSize = 15;
+        TextStrokeTransparency = 0;
+    });
+
+    Library:AddToRegistry(_Instance, {
+        TextColor3 = 'FontColor';
+    }, IsHud);
+
+    return Library:Create(_Instance, Properties);
+end;
+
+function Library:CreateLabel2(Properties, IsHud)
+    local _Instance = Library:Create('TextLabel', {
+        BackgroundTransparency = 1;
+        Font = Enum.Font.Code;
+        TextColor3 = Library.FontColor2;
+        TextSize = 16;
+        TextStrokeTransparency = 0;
+    });
+    Library:AddToRegistry(_Instance, {
+        TextColor3 = 'FontColor2';
+    }, IsHud);
+    return Library:Create(_Instance, Properties);
+end;
+
+
 function Library:ApplyTextStroke(Inst)
 	Inst.TextStrokeTransparency = 1;
 
@@ -140,24 +172,6 @@ function Library:ApplyTextStroke(Inst)
 		LineJoinMode = Enum.LineJoinMode.Miter;
 		Parent = Inst;
 	});
-end;
-
-function Library:CreateLabel(Properties, IsHud)
-	local _Instance = Library:Create('TextLabel', {
-		BackgroundTransparency = 1;
-		Font = Library.Font;
-		TextColor3 = Library.FontColor;
-		TextSize = 16;
-		TextStrokeTransparency = 0;
-	});
-
-	Library:ApplyTextStroke(_Instance);
-
-	Library:AddToRegistry(_Instance, {
-		TextColor3 = 'FontColor';
-	}, IsHud);
-
-	return Library:Create(_Instance, Properties);
 end;
 
 function Library:MakeDraggable(Instance, Cutoff)
@@ -294,20 +308,6 @@ function Library:IsMouseOverFrame(Frame)
 	end;
 end;
 
-function Library:CreateLabel2(Properties, IsHud)
-    local _Instance = Library:Create('TextLabel', {
-        BackgroundTransparency = 1;
-        Font = Enum.Font.Code;
-        TextColor3 = Library.FontColor2;
-        TextSize = 16;
-        TextStrokeTransparency = 0;
-    });
-    Library:AddToRegistry(_Instance, {
-        TextColor3 = 'FontColor2';
-    }, IsHud);
-    return Library:Create(_Instance, Properties);
-end;
-
 function Library:UpdateDependencyBoxes()
 	for _, Depbox in next, Library.DependencyBoxes do
 		Depbox:Update();
@@ -366,25 +366,25 @@ function Library:RemoveFromRegistry(Instance)
 end;
 
 function Library:UpdateColorsUsingRegistry()
-    -- TODO: Could have an 'active' list of objects
-    -- where the active list only contains Visible objects.
+	-- TODO: Could have an 'active' list of objects
+	-- where the active list only contains Visible objects.
 
-    -- IMPL: Could setup .Changed events on the AddToRegistry function
-    -- that listens for the 'Visible' propert being changed.
-    -- Visible: true => Add to active list, and call UpdateColors function
-    -- Visible: false => Remove from active list.
+	-- IMPL: Could setup .Changed events on the AddToRegistry function
+	-- that listens for the 'Visible' propert being changed.
+	-- Visible: true => Add to active list, and call UpdateColors function
+	-- Visible: false => Remove from active list.
 
-    -- The above would be especially efficient for a rainbow menu color or live color-changing.
+	-- The above would be especially efficient for a rainbow menu color or live color-changing.
 
-    for Idx, Object in next, Library.Registry do
-        for Property, ColorIdx in next, Object.Properties do
-            if type(ColorIdx) == 'string' then
-                Object.Instance[Property] = Library[ColorIdx];
-            elseif type(ColorIdx) == 'function' then
-                Object.Instance[Property] = ColorIdx()
-            end
-        end;
-    end;
+	for Idx, Object in next, Library.Registry do
+		for Property, ColorIdx in next, Object.Properties do
+			if type(ColorIdx) == 'string' then
+				Object.Instance[Property] = Library[ColorIdx];
+			elseif type(ColorIdx) == 'function' then
+				Object.Instance[Property] = ColorIdx()
+			end
+		end;
+	end;
 end;
 
 function Library:GiveSignal(Signal)
@@ -1385,7 +1385,6 @@ do
             ZIndex = 5;
             Parent = Container;
         });
-
 		if DoesWrap then
 			local Y = select(2, Library:GetTextBounds(Text, Library.Font, 14, Vector2.new(TextLabel.AbsoluteSize.X, math.huge)))
 			TextLabel.Size = UDim2.new(1, -4, 0, Y)
@@ -2808,15 +2807,15 @@ do
 		BackgroundColor3 = 'AccentColor';
 	}, true);
 
-    local KeybindLabel = Library:CreateLabel2({
-        Size = UDim2.new(1, 0, 0, 20);
-        Position = UDim2.fromOffset(5, 2),
-        TextXAlignment = Enum.TextXAlignment.Center,
-        
-        Text = '[ Keybinds ]';
-        ZIndex = 104;
-        Parent = KeybindInner;
-    });
+	local KeybindLabel = Library:CreateLabel({
+		Size = UDim2.new(1, 0, 0, 20);
+		Position = UDim2.fromOffset(5, 2),
+		TextXAlignment = Enum.TextXAlignment.Left,
+
+		Text = 'Keybinds';
+		ZIndex = 104;
+		Parent = KeybindInner;
+	});
 
 	local KeybindContainer = Library:Create('Frame', {
 		BackgroundTransparency = 1;
@@ -2919,6 +2918,7 @@ function Library:Notify(Text, Time)
         ZIndex = 103;
         Parent = InnerFrame;
     });
+
 
 	local LeftColor = Library:Create('Frame', {
 		BackgroundColor3 = Library.AccentColor;
@@ -3259,16 +3259,15 @@ function Library:CreateWindow(...)
 				BackgroundColor3 = 'AccentColor';
 			});
 
-            local GroupboxLabel = Library:CreateLabel2({
-                Size = UDim2.new(1, 0, 0, 18);
-                Position = UDim2.new(0, 4, 0, 2);
-                TextSize = 14;
-                Text = Info.Name;
-                TextColor3 = Color3.fromRGB(198, 198, 198);
-                TextXAlignment = Enum.TextXAlignment.Left;
-                ZIndex = 5;
-                Parent = BoxInner;
-            });
+			local GroupboxLabel = Library:CreateLabel({
+				Size = UDim2.new(1, 0, 0, 18);
+				Position = UDim2.new(0, 4, 0, 2);
+				TextSize = 14;
+				Text = Info.Name;
+				TextXAlignment = Enum.TextXAlignment.Left;
+				ZIndex = 5;
+				Parent = BoxInner;
+			});
 
 			local Container = Library:Create('Frame', {
 				BackgroundTransparency = 1;
@@ -3390,15 +3389,14 @@ function Library:CreateWindow(...)
 					BackgroundColor3 = 'MainColor';
 				});
 
-                local ButtonLabel = Library:CreateLabel2({
-                    Size = UDim2.new(1, 0, 1, 0);
-                    TextSize = 14;
-                    Text = Name;
-                    TextColor3 = Color3.fromRGB(198, 198, 198);
-                    TextXAlignment = Enum.TextXAlignment.Center;
-                    ZIndex = 7;
-                    Parent = Button;
-                });
+				local ButtonLabel = Library:CreateLabel({
+					Size = UDim2.new(1, 0, 1, 0);
+					TextSize = 14;
+					Text = Name;
+					TextXAlignment = Enum.TextXAlignment.Center;
+					ZIndex = 7;
+					Parent = Button;
+				});
 
 				local Block = Library:Create('Frame', {
 					BackgroundColor3 = Library.BackgroundColor;
