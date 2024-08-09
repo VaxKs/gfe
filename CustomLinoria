@@ -425,16 +425,12 @@ do
 
     function Funcs:AddColorPicker(Idx, Info)
         local ToggleLabel = self.TextLabel;
-        -- local Container = self.Container;
-
-        assert(Info.Default, 'AddColorPicker: Missing default value.');
+        local Container = self.Container;
 
         local ColorPicker = {
             Value = Info.Default;
-            Transparency = Info.Transparency or 0;
             Type = 'ColorPicker';
             Title = type(Info.Title) == 'string' and Info.Title or 'Color picker',
-            Callback = Info.Callback or function(Color) end;
         };
 
         function ColorPicker:SetHSVFromRGB(Color)
@@ -456,35 +452,24 @@ do
             Parent = ToggleLabel;
         });
 
-        -- Transparency image taken from https://github.com/matas3535/SplixPrivateDrawingLibrary/blob/main/Library.lua cus i'm lazy
-        local CheckerFrame = Library:Create('ImageLabel', {
-            BorderSizePixel = 0;
-            Size = UDim2.new(0, 27, 0, 13);
-            ZIndex = 5;
-            Image = 'http://www.roblox.com/asset/?id=12977615774';
-            Visible = not not Info.Transparency;
-            Parent = DisplayFrame;
-        });
+        local RelativeOffset = 0;
 
-        -- 1/16/23
-        -- Rewrote this to be placed inside the Library ScreenGui
-        -- There was some issue which caused RelativeOffset to be way off
-        -- Thus the color picker would never show
+        for _, Element in next, Container:GetChildren() do
+            if not Element:IsA('UIListLayout') then
+                RelativeOffset = RelativeOffset + Element.Size.Y.Offset;
+            end;
+        end;
 
         local PickerFrameOuter = Library:Create('Frame', {
             Name = 'Color';
             BackgroundColor3 = Color3.new(1, 1, 1);
             BorderColor3 = Color3.new(0, 0, 0);
-            Position = UDim2.fromOffset(DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18),
-            Size = UDim2.fromOffset(230, Info.Transparency and 271 or 253);
+            Position = UDim2.new(0, 4, 0, 20 + RelativeOffset + 1);
+            Size = UDim2.new(1, -13, 0, 253);
             Visible = false;
             ZIndex = 15;
-            Parent = ScreenGui,
+            Parent = Container.Parent;
         });
-
-        DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
-            PickerFrameOuter.Position = UDim2.fromOffset(DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18);
-        end)
 
         local PickerFrameInner = Library:Create('Frame', {
             BackgroundColor3 = Library.BackgroundColor;
@@ -528,25 +513,6 @@ do
             Parent = SatVibMapInner;
         });
 
-        local CursorOuter = Library:Create('ImageLabel', {
-            AnchorPoint = Vector2.new(0.5, 0.5);
-            Size = UDim2.new(0, 6, 0, 6);
-            BackgroundTransparency = 1;
-            Image = 'http://www.roblox.com/asset/?id=9619665977';
-            ImageColor3 = Color3.new(0, 0, 0);
-            ZIndex = 19;
-            Parent = SatVibMap;
-        });
-
-        local CursorInner = Library:Create('ImageLabel', {
-            Size = UDim2.new(0, CursorOuter.Size.X.Offset - 2, 0, CursorOuter.Size.Y.Offset - 2);
-            Position = UDim2.new(0, 1, 0, 1);
-            BackgroundTransparency = 1;
-            Image = 'http://www.roblox.com/asset/?id=9619665977';
-            ZIndex = 20;
-            Parent = CursorOuter;
-        })
-
         local HueSelectorOuter = Library:Create('Frame', {
             BorderColor3 = Color3.new(0, 0, 0);
             Position = UDim2.new(0, 208, 0, 25);
@@ -563,14 +529,8 @@ do
             Parent = HueSelectorOuter;
         });
 
-        local HueCursor = Library:Create('Frame', { 
-            BackgroundColor3 = Color3.new(1, 1, 1);
-            AnchorPoint = Vector2.new(0, 0.5);
-            BorderColor3 = Color3.new(0, 0, 0);
-            Size = UDim2.new(1, 0, 0, 1);
-            ZIndex = 18;
-            Parent = HueSelectorInner;
-        });
+        local HueTextSize = Library:GetTextBounds('Hex color', Enum.Font.Code, 16) + 3
+        local RgbTextSize = Library:GetTextBounds('255, 255, 255', Enum.Font.Code, 16) + 3
 
         local HueBoxOuter = Library:Create('Frame', {
             BorderColor3 = Color3.new(0, 0, 0);
@@ -602,7 +562,7 @@ do
             BackgroundTransparency = 1;
             Position = UDim2.new(0, 5, 0, 0);
             Size = UDim2.new(1, -5, 1, 0);
-            Font = Library.Font;
+            Font = Enum.Font.Code;
             PlaceholderColor3 = Color3.fromRGB(190, 190, 190);
             PlaceholderText = 'Hex color',
             Text = '#FFFFFF',
@@ -614,59 +574,17 @@ do
             Parent = HueBoxInner;
         });
 
-        Library:ApplyTextStroke(HueBox);
-
         local RgbBoxBase = Library:Create(HueBoxOuter:Clone(), {
             Position = UDim2.new(0.5, 2, 0, 228),
             Size = UDim2.new(0.5, -6, 0, 20),
             Parent = PickerFrameInner
-        });
+        })  
 
         local RgbBox = Library:Create(RgbBoxBase.Frame:FindFirstChild('TextBox'), {
             Text = '255, 255, 255',
             PlaceholderText = 'RGB color',
-            TextColor3 = Library.FontColor
-        });
-
-        local TransparencyBoxOuter, TransparencyBoxInner, TransparencyCursor;
-        
-        if Info.Transparency then 
-            TransparencyBoxOuter = Library:Create('Frame', {
-                BorderColor3 = Color3.new(0, 0, 0);
-                Position = UDim2.fromOffset(4, 251);
-                Size = UDim2.new(1, -8, 0, 15);
-                ZIndex = 19;
-                Parent = PickerFrameInner;
-            });
-
-            TransparencyBoxInner = Library:Create('Frame', {
-                BackgroundColor3 = ColorPicker.Value;
-                BorderColor3 = Library.OutlineColor;
-                BorderMode = Enum.BorderMode.Inset;
-                Size = UDim2.new(1, 0, 1, 0);
-                ZIndex = 19;
-                Parent = TransparencyBoxOuter;
-            });
-
-            Library:AddToRegistry(TransparencyBoxInner, { BorderColor3 = 'OutlineColor' });
-
-            Library:Create('ImageLabel', {
-                BackgroundTransparency = 1;
-                Size = UDim2.new(1, 0, 1, 0);
-                Image = 'http://www.roblox.com/asset/?id=12978095818';
-                ZIndex = 20;
-                Parent = TransparencyBoxInner;
-            });
-
-            TransparencyCursor = Library:Create('Frame', { 
-                BackgroundColor3 = Color3.new(1, 1, 1);
-                AnchorPoint = Vector2.new(0.5, 0);
-                BorderColor3 = Color3.new(0, 0, 0);
-                Size = UDim2.new(0, 1, 1, 0);
-                ZIndex = 21;
-                Parent = TransparencyBoxInner;
-            });
-        end;
+            TextColor3 = Library.FontColor,
+        })
 
         local DisplayLabel = Library:CreateLabel({
             Size = UDim2.new(1, 0, 0, 14);
@@ -679,133 +597,6 @@ do
             Parent = PickerFrameInner;
         });
 
-
-        local ContextMenu = {}
-        do
-            ContextMenu.Options = {}
-            ContextMenu.Container = Library:Create('Frame', {
-                BorderColor3 = Color3.new(),
-                ZIndex = 14,
-
-                Visible = false,
-                Parent = ScreenGui
-            })
-
-            ContextMenu.Inner = Library:Create('Frame', {
-                BackgroundColor3 = Library.BackgroundColor;
-                BorderColor3 = Library.OutlineColor;
-                BorderMode = Enum.BorderMode.Inset;
-                Size = UDim2.fromScale(1, 1);
-                ZIndex = 15;
-                Parent = ContextMenu.Container;
-            });
-
-            Library:Create('UIListLayout', {
-                Name = 'Layout',
-                FillDirection = Enum.FillDirection.Vertical;
-                SortOrder = Enum.SortOrder.LayoutOrder;
-                Parent = ContextMenu.Inner;
-            });
-
-            Library:Create('UIPadding', {
-                Name = 'Padding',
-                PaddingLeft = UDim.new(0, 4),
-                Parent = ContextMenu.Inner,
-            });
-
-            local function updateMenuPosition()
-                ContextMenu.Container.Position = UDim2.fromOffset(
-                    (DisplayFrame.AbsolutePosition.X + DisplayFrame.AbsoluteSize.X) + 4,
-                    DisplayFrame.AbsolutePosition.Y + 1
-                )
-            end
-
-            local function updateMenuSize()
-                local menuWidth = 60
-                for i, label in next, ContextMenu.Inner:GetChildren() do
-                    if label:IsA('TextLabel') then
-                        menuWidth = math.max(menuWidth, label.TextBounds.X)
-                    end
-                end
-
-                ContextMenu.Container.Size = UDim2.fromOffset(
-                    menuWidth + 8,
-                    ContextMenu.Inner.Layout.AbsoluteContentSize.Y + 4
-                )
-            end
-
-            DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updateMenuPosition)
-            ContextMenu.Inner.Layout:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(updateMenuSize)
-
-            task.spawn(updateMenuPosition)
-            task.spawn(updateMenuSize)
-
-            Library:AddToRegistry(ContextMenu.Inner, {
-                BackgroundColor3 = 'BackgroundColor';
-                BorderColor3 = 'OutlineColor';
-            });
-
-            function ContextMenu:Show()
-                self.Container.Visible = true
-            end
-
-            function ContextMenu:Hide()
-                self.Container.Visible = false
-            end
-
-            function ContextMenu:AddOption(Str, Callback)
-                if type(Callback) ~= 'function' then
-                    Callback = function() end
-                end
-
-                local Button = Library:CreateLabel({
-                    Active = false;
-                    Size = UDim2.new(1, 0, 0, 15);
-                    TextSize = 13;
-                    Text = Str;
-                    ZIndex = 16;
-                    Parent = self.Inner;
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                });
-
-                Library:OnHighlight(Button, Button, 
-                    { TextColor3 = 'AccentColor' },
-                    { TextColor3 = 'FontColor' }
-                );
-
-                Button.InputBegan:Connect(function(Input)
-                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 then
-                        return
-                    end
-
-                    Callback()
-                end)
-            end
-
-            ContextMenu:AddOption('Copy color', function()
-                Library.ColorClipboard = ColorPicker.Value
-                Library:Notify('Copied color!', 2)
-            end)
-
-            ContextMenu:AddOption('Paste color', function()
-                if not Library.ColorClipboard then
-                    return Library:Notify('You have not copied a color!', 2)
-                end
-                ColorPicker:SetValueRGB(Library.ColorClipboard)
-            end)
-
-
-            ContextMenu:AddOption('Copy HEX', function()
-                pcall(setclipboard, ColorPicker.Value:ToHex())
-                Library:Notify('Copied hex code to clipboard!', 2)
-            end)
-
-            ContextMenu:AddOption('Copy RGB', function()
-                pcall(setclipboard, table.concat({ math.floor(ColorPicker.Value.R * 255), math.floor(ColorPicker.Value.G * 255), math.floor(ColorPicker.Value.B * 255) }, ', '))
-                Library:Notify('Copied RGB values to clipboard!', 2)
-            end)
-
-        end
 
         Library:AddToRegistry(PickerFrameInner, { BackgroundColor3 = 'BackgroundColor'; BorderColor3 = 'OutlineColor'; });
         Library:AddToRegistry(Highlight, { BackgroundColor3 = 'AccentColor'; });
@@ -827,7 +618,7 @@ do
             Rotation = 90;
             Parent = HueSelectorInner;
         });
-
+        
         HueBox.FocusLost:Connect(function(enter)
             if enter then
                 local success, result = pcall(Color3.fromHex, HueBox.Text)
@@ -856,23 +647,15 @@ do
 
             Library:Create(DisplayFrame, {
                 BackgroundColor3 = ColorPicker.Value;
-                BackgroundTransparency = ColorPicker.Transparency;
                 BorderColor3 = Library:GetDarkerColor(ColorPicker.Value);
             });
-
-            if TransparencyBoxInner then
-                TransparencyBoxInner.BackgroundColor3 = ColorPicker.Value;
-                TransparencyCursor.Position = UDim2.new(1 - ColorPicker.Transparency, 0, 0, 0);
-            end;
-
-            CursorOuter.Position = UDim2.new(ColorPicker.Sat, 0, 1 - ColorPicker.Vib, 0);
-            HueCursor.Position = UDim2.new(0, 0, ColorPicker.Hue, 0);
 
             HueBox.Text = '#' .. ColorPicker.Value:ToHex()
             RgbBox.Text = table.concat({ math.floor(ColorPicker.Value.R * 255), math.floor(ColorPicker.Value.G * 255), math.floor(ColorPicker.Value.B * 255) }, ', ')
 
-            Library:SafeCallback(ColorPicker.Callback, ColorPicker.Value);
-            Library:SafeCallback(ColorPicker.Changed, ColorPicker.Value);
+            if ColorPicker.Changed then
+                ColorPicker.Changed(ColorPicker.Value)
+            end;
         end;
 
         function ColorPicker:OnChanged(Func)
@@ -897,16 +680,14 @@ do
             Library.OpenedFrames[PickerFrameOuter] = nil;
         end;
 
-        function ColorPicker:SetValue(HSV, Transparency)
+        function ColorPicker:SetValue(HSV)
             local Color = Color3.fromHSV(HSV[1], HSV[2], HSV[3]);
 
-            ColorPicker.Transparency = Transparency or 0;
             ColorPicker:SetHSVFromRGB(Color);
             ColorPicker:Display();
         end;
 
-        function ColorPicker:SetValueRGB(Color, Transparency)
-            ColorPicker.Transparency = Transparency or 0;
+        function ColorPicker:SetValueRGB(Color)
             ColorPicker:SetHSVFromRGB(Color);
             ColorPicker:Display();
         end;
@@ -953,36 +734,12 @@ do
         DisplayFrame.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
                 if PickerFrameOuter.Visible then
-                    ColorPicker:Hide()
+                    ColorPicker:Hide();
                 else
-                    ContextMenu:Hide()
-                    ColorPicker:Show()
+                    ColorPicker:Show();
                 end;
-            elseif Input.UserInputType == Enum.UserInputType.MouseButton2 and not Library:MouseIsOverOpenedFrame() then
-                ContextMenu:Show()
-                ColorPicker:Hide()
-            end
+            end;
         end);
-
-        if TransparencyBoxInner then
-            TransparencyBoxInner.InputBegan:Connect(function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
-                        local MinX = TransparencyBoxInner.AbsolutePosition.X;
-                        local MaxX = MinX + TransparencyBoxInner.AbsoluteSize.X;
-                        local MouseX = math.clamp(Mouse.X, MinX, MaxX);
-
-                        ColorPicker.Transparency = 1 - ((MouseX - MinX) / (MaxX - MinX));
-
-                        ColorPicker:Display();
-
-                        RenderStepped:Wait();
-                    end;
-
-                    Library:AttemptSave();
-                end;
-            end);
-        end;
 
         Library:GiveSignal(InputService.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -993,17 +750,7 @@ do
 
                     ColorPicker:Hide();
                 end;
-
-                if not Library:IsMouseOverFrame(ContextMenu.Container) then
-                    ContextMenu:Hide()
-                end
             end;
-
-            if Input.UserInputType == Enum.UserInputType.MouseButton2 and ContextMenu.Container.Visible then
-                if not Library:IsMouseOverFrame(ContextMenu.Container) and not Library:IsMouseOverFrame(DisplayFrame) then
-                    ContextMenu:Hide()
-                end
-            end
         end))
 
         ColorPicker:Display();
@@ -1013,7 +760,7 @@ do
 
         return self;
     end;
-	
+
 	function Funcs:AddKeyPicker(Idx, Info)
 		local ParentObj = self;
 		local ToggleLabel = self.TextLabel;
@@ -1040,11 +787,10 @@ do
 		local PickOuter = Library:Create('Frame', {
 			BackgroundColor3 = Color3.new(0, 0, 0);
 			BorderColor3 = Color3.new(0, 0, 0);
-			Size = UDim2.new(0, 35, 0, 15);
+			Size = UDim2.new(0, 28, 0, 15);
 			ZIndex = 6;
 			Parent = ToggleLabel;
 		});
-		
 
 		local PickInner = Library:Create('Frame', {
 			BackgroundColor3 = Library.BackgroundColor;
@@ -1054,7 +800,7 @@ do
 			ZIndex = 7;
 			Parent = PickOuter;
 		});
-		
+
 		Library:AddToRegistry(PickInner, {
 			BackgroundColor3 = 'BackgroundColor';
 			BorderColor3 = 'OutlineColor';
@@ -1215,8 +961,8 @@ do
 			
 			for _, Option in pairs(Options) do
 				if Option.Type == 'KeyPicker' and Option ~= KeyPicker and Option.Value == Key then
-					DisplayLabel.Text = "Non"
-					KeyPicker.Value = "Non" 
+					DisplayLabel.Text = "None"
+					KeyPicker.Value = "None" 
 					return
 				end
 			end
@@ -1292,8 +1038,8 @@ do
 		
 						for _, Option in pairs(Options) do
 							if Option.Type == 'KeyPicker' and Option ~= KeyPicker and Option.Value == Key then
-								DisplayLabel.Text = "Non"
-								KeyPicker.Value = "Non" 
+								DisplayLabel.Text = "None"
+								KeyPicker.Value = "None" 
 								Picking = false;
 								Break = true;
 								Event:Disconnect();
@@ -1803,56 +1549,57 @@ do
 
 		-- https://devforum.roblox.com/t/how-to-make-textboxes-follow-current-cursor-position/1368429/6
 		-- thank you nicemike40 :)
+
 		local function Update()
-            local PADDING = 2
-            local reveal = Container.AbsoluteSize.X
+			local PADDING = 2
+			local reveal = Container.AbsoluteSize.X
 
-            if not Box:IsFocused() or Box.TextBounds.X <= reveal - 2 * PADDING then
-                -- we aren't focused, or we fit so be normal
-                Box.Position = UDim2.new(0, PADDING, 0, 0)
-            else
-                -- we are focused and don't fit, so adjust position
-                local cursor = Box.CursorPosition
-                if cursor ~= -1 then
-                    -- calculate pixel width of text from start to cursor
-                    local subtext = string.sub(Box.Text, 1, cursor-1)
-                    local width = TextService:GetTextSize(subtext, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
+			if not Box:IsFocused() or Box.TextBounds.X <= reveal - 2 * PADDING then
+				-- we aren't focused, or we fit so be normal
+				Box.Position = UDim2.new(0, PADDING, 0, 0)
+			else
+				-- we are focused and don't fit, so adjust position
+				local cursor = Box.CursorPosition
+				if cursor ~= -1 then
+					-- calculate pixel width of text from start to cursor
+					local subtext = string.sub(Box.Text, 1, cursor-1)
+					local width = TextService:GetTextSize(subtext, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
 
-                    -- check if we're inside the box with the cursor
-                    local currentCursorPos = Box.Position.X.Offset + width
+					-- check if we're inside the box with the cursor
+					local currentCursorPos = Box.Position.X.Offset + width
 
-                    -- adjust if necessary
-                    if currentCursorPos < PADDING then
-                        Box.Position = UDim2.fromOffset(PADDING-width, 0)
-                    elseif currentCursorPos > reveal - PADDING - 1 then
-                        Box.Position = UDim2.fromOffset(reveal-width-PADDING-1, 0)
-                    end
-                end
-            end
-        end
+					-- adjust if necessary
+					if currentCursorPos < PADDING then
+						Box.Position = UDim2.fromOffset(PADDING-width, 0)
+					elseif currentCursorPos > reveal - PADDING - 1 then
+						Box.Position = UDim2.fromOffset(reveal-width-PADDING-1, 0)
+					end
+				end
+			end
+		end
 
-        task.spawn(Update)
+		task.spawn(function() pcall(Update) end)
 
-        Box:GetPropertyChangedSignal('Text'):Connect(Update)
-        Box:GetPropertyChangedSignal('CursorPosition'):Connect(Update)
-        Box.FocusLost:Connect(Update)
-        Box.Focused:Connect(Update)
+		Box:GetPropertyChangedSignal('Text'):Connect(Update)
+		Box:GetPropertyChangedSignal('CursorPosition'):Connect(Update)
+		Box.FocusLost:Connect(Update)
+		Box.Focused:Connect(Update)
 
-        Library:AddToRegistry(Box, {
-            TextColor3 = 'FontColor';
-        });
+		Library:AddToRegistry(Box, {
+			TextColor3 = 'FontColor';
+		});
 
-        function Textbox:OnChanged(Func)
-            Textbox.Changed = Func;
-            Func(Textbox.Value);
-        end;
+		function Textbox:OnChanged(Func)
+			Textbox.Changed = Func;
+			Func(Textbox.Value);
+		end;
 
-        Groupbox:AddBlank(5);
-        Groupbox:Resize();
+		Groupbox:AddBlank(5);
+		Groupbox:Resize();
 
-        Options[Idx] = Textbox;
+		Options[Idx] = Textbox;
 
-        return Textbox;
+		return Textbox;
 	end;
 
 	function Funcs:AddToggle(Idx, Info)
@@ -3570,115 +3317,75 @@ function Library:CreateWindow(...)
 	local Toggled = false;
 	local Fading = false;
 
-function Library:Toggle()
-    if Fading then
-        return
-    end
+	function Library:Toggle()
+		if Fading then
+			return;
+		end;
 
-    local FadeTime = Config.MenuFadeTime
-    Fading = true
-    Toggled = not Toggled
-    ModalElement.Modal = Toggled
+		local FadeTime = Config.MenuFadeTime;
+		Fading = true;
+		Toggled = (not Toggled);
+		ModalElement.Modal = Toggled;
 
-    if Toggled then
-        Outer.Visible = true
 
-        task.spawn(function()
-            local State = InputService.MouseIconEnabled
 
-            local Cursor = Drawing.new('Triangle')
-            Cursor.Thickness = 1
-            Cursor.Filled = true
-            Cursor.Visible = true
+		for _, Desc in next, Outer:GetDescendants() do
+			local Properties = {};
 
-            local CursorOutline = Drawing.new('Triangle')
-            CursorOutline.Thickness = 1
-            CursorOutline.Filled = false
-            CursorOutline.Color = Color3.new(0, 0, 0)
-            CursorOutline.Visible = true
+			if Desc:IsA('ImageLabel') then
+				table.insert(Properties, 'ImageTransparency');
+				table.insert(Properties, 'BackgroundTransparency');
+			elseif Desc:IsA('TextLabel') or Desc:IsA('TextBox') then
+				table.insert(Properties, 'TextTransparency');
+			elseif Desc:IsA('Frame') or Desc:IsA('ScrollingFrame') then
+				table.insert(Properties, 'BackgroundTransparency');
+			elseif Desc:IsA('UIStroke') then
+				table.insert(Properties, 'Transparency');
+			end;
 
-            while Toggled and ScreenGui.Parent do
-                InputService.MouseIconEnabled = false
+			local Cache = TransparencyCache[Desc];
 
-                local mPos = InputService:GetMouseLocation()
+			if (not Cache) then
+				Cache = {};
+				TransparencyCache[Desc] = Cache;
+			end;
 
-                Cursor.Color = Library.AccentColor
+			for _, Prop in next, Properties do
+				if not Cache[Prop] then
+					Cache[Prop] = Desc[Prop];
+				end;
 
-                Cursor.PointA = Vector2.new(mPos.X, mPos.Y)
-                Cursor.PointB = Vector2.new(mPos.X + 16, mPos.Y + 6)
-                Cursor.PointC = Vector2.new(mPos.X + 6, mPos.Y + 16)
+				if Cache[Prop] == 1 then
+					continue;
+				end;
 
-                CursorOutline.PointA = Cursor.PointA
-                CursorOutline.PointB = Cursor.PointB
-                CursorOutline.PointC = Cursor.PointC
+				TweenService:Create(Desc, TweenInfo.new(FadeTime, Enum.EasingStyle.Linear), { [Prop] = Toggled and Cache[Prop] or 1 }):Play();
+			end;
+		end;
 
-                RenderStepped:Wait()
-            end
+		task.wait(FadeTime);
 
-            InputService.MouseIconEnabled = State
+		Outer.Visible = Toggled;
 
-            Cursor:Remove()
-            CursorOutline:Remove()
-        end)
-    end
+		Fading = false;
+	end
 
-    for _, Desc in next, Outer:GetDescendants() do
-        local Properties = {}
+	Library:GiveSignal(InputService.InputBegan:Connect(function(Input, Processed)
+		if type(Library.ToggleKeybind) == 'table' and Library.ToggleKeybind.Type == 'KeyPicker' then
+			if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode.Name == Library.ToggleKeybind.Value then
+				task.spawn(Library.Toggle)
+			end
+		elseif Input.KeyCode == Enum.KeyCode.RightControl or (Input.KeyCode == Enum.KeyCode.RightShift and (not Processed)) then
+			task.spawn(Library.Toggle)
+		end
+	end))
 
-        if Desc:IsA('ImageLabel') then
-            table.insert(Properties, 'ImageTransparency')
-            table.insert(Properties, 'BackgroundTransparency')
-        elseif Desc:IsA('TextLabel') or Desc:IsA('TextBox') then
-            table.insert(Properties, 'TextTransparency')
-        elseif Desc:IsA('Frame') or Desc:IsA('ScrollingFrame') then
-            table.insert(Properties, 'BackgroundTransparency')
-        elseif Desc:IsA('UIStroke') then
-            table.insert(Properties, 'Transparency')
-        end
+	if Config.AutoShow then task.spawn(Library.Toggle) end
 
-        local Cache = TransparencyCache[Desc]
+	Window.Holder = Outer;
 
-        if not Cache then
-            Cache = {}
-            TransparencyCache[Desc] = Cache
-        end
-
-        for _, Prop in next, Properties do
-            if not Cache[Prop] then
-                Cache[Prop] = Desc[Prop]
-            end
-
-            if Cache[Prop] == 1 then
-                continue
-            end
-
-            TweenService:Create(Desc, TweenInfo.new(FadeTime, Enum.EasingStyle.Linear), { [Prop] = Toggled and Cache[Prop] or 1 }):Play()
-        end
-    end
-
-    task.wait(FadeTime)
-
-    Outer.Visible = Toggled
-
-    Fading = false
-end
-
-Library:GiveSignal(InputService.InputBegan:Connect(function(Input, Processed)
-    if type(Library.ToggleKeybind) == 'table' and Library.ToggleKeybind.Type == 'KeyPicker' then
-        if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode.Name == Library.ToggleKeybind.Value then
-            task.spawn(Library.Toggle)
-        end
-    elseif Input.KeyCode == Enum.KeyCode.RightControl or (Input.KeyCode == Enum.KeyCode.RightShift and not Processed) then
-        task.spawn(Library.Toggle)
-    end
-end))
-
-if Config.AutoShow then task.spawn(Library.Toggle) end
-
-Window.Holder = Outer
-
-return Window
-
+	return Window;
+end;
 
 local function OnPlayerChange()
 	local PlayerList = GetPlayersString();
