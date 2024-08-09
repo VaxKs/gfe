@@ -1732,7 +1732,7 @@ do
 			Min = Info.Min,
 			Max = Info.Max,
 			Rounding = Info.Rounding,
-			MaxSize = 232, -- Reverted to original size
+			MaxSize = 232,
 			Type = 'Slider',
 			Callback = Info.Callback or function(Value) end
 		}
@@ -1740,23 +1740,26 @@ do
 		local Groupbox = self
 		local Container = Groupbox.Container
 	
+		local TitleLabel, DisplayLabel
+	
 		if not Info.Compact then
-			local TitleLabel = Library:CreateLabel({
+			TitleLabel = Library:CreateLabel({
 				Size = UDim2.new(0.5, 0, 0, 14),
 				Position = UDim2.new(0, 0, 0, -12),
 				TextSize = 12,
 				Text = "<b>".. Info.Text .."</b>", -- Bolded Title
+				RichText = true, -- Allows rich text like bold
 				TextXAlignment = Enum.TextXAlignment.Left,
 				ZIndex = 5,
 				Parent = Container
 			})
 	
-			local DisplayLabel = Library:CreateLabel({
+			DisplayLabel = Library:CreateLabel({
 				Size = UDim2.new(0.5, -10, 0, 14),
 				Position = UDim2.new(0.5, 0, 0, -12),
 				TextSize = 12,
-				Text = '<b>Infinite</b>', -- Bolded Value/Max
-				RichText = true, -- Allows rich text like bold
+				Text = '<b>'.. Slider.Value .. '/' .. Slider.Max ..'</b>', -- Bolded initial Value/Max
+				RichText = true,
 				TextXAlignment = Enum.TextXAlignment.Right,
 				ZIndex = 5,
 				Parent = Container
@@ -1833,9 +1836,11 @@ do
 	
 		function Slider:Display()
 			local Suffix = Info.Suffix or ''
-			DisplayLabel.Text = Info.Compact and ('<b>'.. Slider.Value .. Suffix ..'</b>') or
-								(Info.HideMax and string.format('<b>%s</b>', Slider.Value .. Suffix) or
-								string.format('<b>%s/%s</b>', Slider.Value .. Suffix, Slider.Max .. Suffix))
+			if DisplayLabel then
+				DisplayLabel.Text = Info.Compact and ('<b>'.. Slider.Value .. Suffix ..'</b>') or
+									(Info.HideMax and string.format('<b>%s</b>', Slider.Value .. Suffix) or
+									string.format('<b>%s/%s</b>', Slider.Value .. Suffix, Slider.Max .. Suffix))
+			end
 	
 			local X = math.ceil(Library:MapValue(Slider.Value, Slider.Min, Slider.Max, 0, Slider.MaxSize))
 			Fill.Size = UDim2.new(0, X, 1, 0)
@@ -1903,6 +1908,7 @@ do
 	
 		return Slider
 	end
+	
 	
 	
 	
