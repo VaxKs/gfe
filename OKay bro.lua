@@ -141,6 +141,14 @@ local SaveManager = {} do
 			return false, 'file does not exist'
 		end
 
+		if isfile(self.Folder .. '/settings/autoload.txt') then
+			local autoloadConfig = readfile(self.Folder .. '/settings/autoload.txt')
+			if autoloadConfig == name then
+				delfile(self.Folder .. '/settings/autoload.txt')
+				SaveManager.AutoloadLabel:SetText('Current autoload config: none')
+			end
+		end
+
 		delfile(fullPath)
 		return true
 	end
