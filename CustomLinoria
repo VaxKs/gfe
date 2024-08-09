@@ -1755,17 +1755,18 @@ do
 		end
 
 		local SliderOuter = Library:Create('Frame', {
-			BackgroundColor3 = Color3.new(0, 0, 0);
-			BorderColor3 = Color3.new(0, 0, 0);
+			BackgroundColor3 = Library.BackgroundColor;
+			BorderColor3 = Library.OutlineColor;
 			Size = UDim2.new(1, -4, 0, 13);
 			ZIndex = 5;
 			Parent = Container;
-		});
-
+		})
+		
 		Library:AddToRegistry(SliderOuter, {
-			BorderColor3 = 'Black';
-		});
-
+			BackgroundColor3 = 'BackgroundColor';
+			BorderColor3 = 'OutlineColor';
+		})
+		
 		local SliderInner = Library:Create('Frame', {
 			BackgroundColor3 = Library.MainColor;
 			BorderColor3 = Library.OutlineColor;
@@ -1773,26 +1774,26 @@ do
 			Size = UDim2.new(1, 0, 1, 0);
 			ZIndex = 6;
 			Parent = SliderOuter;
-		});
-
+		})
+		
 		Library:AddToRegistry(SliderInner, {
 			BackgroundColor3 = 'MainColor';
 			BorderColor3 = 'OutlineColor';
-		});
-
+		})
+		
 		local Fill = Library:Create('Frame', {
 			BackgroundColor3 = Library.AccentColor;
 			BorderColor3 = Library.AccentColorDark;
 			Size = UDim2.new(0, 0, 1, 0);
 			ZIndex = 7;
 			Parent = SliderInner;
-		});
-
+		})
+		
 		Library:AddToRegistry(Fill, {
 			BackgroundColor3 = 'AccentColor';
 			BorderColor3 = 'AccentColorDark';
-		});
-
+		})
+		
 		local HideBorderRight = Library:Create('Frame', {
 			BackgroundColor3 = Library.AccentColor;
 			BorderSizePixel = 0;
@@ -1800,11 +1801,66 @@ do
 			Size = UDim2.new(0, 1, 1, 0);
 			ZIndex = 8;
 			Parent = Fill;
-		});
-
+		})
+		
 		Library:AddToRegistry(HideBorderRight, {
 			BackgroundColor3 = 'AccentColor';
-		});
+		})
+		
+		local function UpdateSlider(Slider, Amount)
+			local NewValue = Slider.Value + Amount
+			Slider:SetValue(NewValue)
+		end
+		
+		local function StartChanging(Slider, Amount)
+			UpdateSlider(Slider, Amount)
+		
+			local ChangeConnection
+			ChangeConnection = RenderStepped:Connect(function()
+				UpdateSlider(Slider, Amount)
+			end)
+		
+			return function()
+				if ChangeConnection then
+					ChangeConnection:Disconnect()
+				end
+			end
+		end
+		
+		local DecreaseButton = Library:Create('TextButton', {
+			Text = '-';
+			Size = UDim2.new(0, 20, 1, 0);
+			Position = UDim2.new(-0.1, 0, 0, 0);
+			ZIndex = 10;
+			Parent = SliderOuter;
+		})
+		
+		local IncreaseButton = Library:Create('TextButton', {
+			Text = '+';
+			Size = UDim2.new(0, 20, 1, 0);
+			Position = UDim2.new(1, 0, 0, 0);
+			ZIndex = 10;
+			Parent = SliderOuter;
+		})
+		
+		local function HandleButtonPress(Button, Amount)
+			local StopChanging
+		
+			Button.InputBegan:Connect(function(Input)
+				if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+					StopChanging = StartChanging(Slider, Amount)
+				end
+			end)
+		
+			Button.InputEnded:Connect(function(Input)
+				if Input.UserInputType == Enum.UserInputType.MouseButton1 and StopChanging then
+					StopChanging()
+				end
+			end)
+		end
+		
+		HandleButtonPress(DecreaseButton, -Slider.Rounding)
+		HandleButtonPress(IncreaseButton, Slider.Rounding)
 
 		local DisplayLabel = Library:CreateLabel({
 			Size = UDim2.new(1, 0, 1, 0);
