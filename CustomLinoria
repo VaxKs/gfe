@@ -1732,7 +1732,7 @@ do
 			Min = Info.Min,
 			Max = Info.Max,
 			Rounding = Info.Rounding,
-			MaxSize = 200,
+			MaxSize = 196,  -- Adjusted to fit within the slider's frame correctly
 			Type = 'Slider',
 			Callback = Info.Callback or function(Value) end
 		}
@@ -1756,7 +1756,7 @@ do
 	
 		local DisplayLabel = Library:CreateLabel({
 			Size = UDim2.new(1, -10, 0, 14),
-			Position = UDim2.new(0, 10, 0, -12),
+			Position = UDim2.new(0, 0, 0, -2),
 			TextSize = 12,
 			Text = 'Infinite',
 			TextXAlignment = Enum.TextXAlignment.Right,
