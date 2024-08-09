@@ -114,13 +114,21 @@ if isloaded then
         end
 
         function SaveManager:Delete(name)
-            if (not name) then
+            if not name then
                 return false, 'no config file is selected'
             end
 
             local fullPath = self.Folder .. '/settings/' .. name .. '.json'
             if not isfile(fullPath) then
                 return false, 'file does not exist'
+            end
+
+            if isfile(self.Folder .. '/settings/autoload.txt') then
+                local autoloadConfig = readfile(self.Folder .. '/settings/autoload.txt')
+                if autoloadConfig == name then
+                    delfile(self.Folder .. '/settings/autoload.txt')
+                    SaveManager.AutoloadLabel:SetText('Current autoload config: none')
+                end
             end
 
             delfile(fullPath)
@@ -407,13 +415,21 @@ else
         end
 
         function SaveManager:Delete(name)
-            if (not name) then
+            if not name then
                 return false, 'no config file is selected'
             end
 
             local fullPath = self.Folder .. '/settings/' .. name .. '.json'
             if not isfile(fullPath) then
                 return false, 'file does not exist'
+            end
+
+            if isfile(self.Folder .. '/settings/autoload.txt') then
+                local autoloadConfig = readfile(self.Folder .. '/settings/autoload.txt')
+                if autoloadConfig == name then
+                    delfile(self.Folder .. '/settings/autoload.txt')
+                    SaveManager.AutoloadLabel:SetText('Current autoload config: none')
+                end
             end
 
             delfile(fullPath)
