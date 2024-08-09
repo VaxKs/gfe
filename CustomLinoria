@@ -957,13 +957,13 @@ function Funcs:AddKeyPicker(Idx, Info)
 
 	function KeyPicker:SetValue(Data)
 		local Key, Mode = Data[1], Data[2]
-
+	
 		for _, Option in pairs(Options) do
-			if Option.Type == 'KeyPicker' and Option.Value == Key then
+			if Option.Type == 'KeyPicker' and Option.Value == Key and Option ~= KeyPicker then
 				return
 			end
 		end
-
+	
 		DisplayLabel.Text = Key
 		KeyPicker.Value = Key
 		ModeButtons[Mode]:Select()
@@ -998,33 +998,33 @@ function Funcs:AddKeyPicker(Idx, Info)
 		pcall(function()
 			if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
 				Picking = true
-
+	
 				DisplayLabel.Text = ''
-
+	
 				local Break
 				local Text = ''
-
+	
 				task.spawn(function()
 					pcall(function()
 						while (not Break) do
 							if Text == '...' then
 								Text = ''
 							end
-
+	
 							Text = Text .. '.'
 							DisplayLabel.Text = Text
-
+	
 							wait(0.4)
 						end
 					end)
 				end)
-
+	
 				wait(0.2)
-
+	
 				local Event
 				Event = InputService.InputBegan:Connect(function(Input)
 					local Key
-
+	
 					if Input.UserInputType == Enum.UserInputType.Keyboard then
 						Key = Input.KeyCode.Name
 					elseif Input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -1032,9 +1032,9 @@ function Funcs:AddKeyPicker(Idx, Info)
 					elseif Input.UserInputType == Enum.UserInputType.MouseButton2 then
 						Key = 'MB2'
 					end
-
+	
 					for _, Option in pairs(Options) do
-						if Option.Type == 'KeyPicker' and Option.Value == Key then
+						if Option.Type == 'KeyPicker' and Option.Value == Key and Option ~= KeyPicker then
 							Break = true
 							Picking = false
 							DisplayLabel.Text = KeyPicker.Value
@@ -1042,18 +1042,18 @@ function Funcs:AddKeyPicker(Idx, Info)
 							return
 						end
 					end
-
+	
 					Break = true
 					Picking = false
-
+	
 					DisplayLabel.Text = Key
 					KeyPicker.Value = Key
-
+	
 					Library:SafeCallback(KeyPicker.ChangedCallback, Input.KeyCode or Input.UserInputType)
 					Library:SafeCallback(KeyPicker.Changed, Input.KeyCode or Input.UserInputType)
-
+	
 					Library:AttemptSave()
-
+	
 					Event:Disconnect()
 				end)
 			elseif Input.UserInputType == Enum.UserInputType.MouseButton2 and not Library:MouseIsOverOpenedFrame() then
