@@ -1816,7 +1816,7 @@ do
 		local DisplayLabel = Library:CreateLabel({
 			Size = UDim2.new(1, 0, 1, 0),
 			TextSize = 14,
-			Text = '', -- No initial text
+			Text = '', -- Initial text set to empty
 			TextXAlignment = Enum.TextXAlignment.Center, -- Center the text
 			ZIndex = 9,
 			Parent = SliderInner,
@@ -1839,7 +1839,7 @@ do
 	
 		function Slider:Display()
 			local Suffix = Info.Suffix or ''
-			DisplayLabel.Text = string.format('%s/%s', Slider.Value .. Suffix, Slider.Max .. Suffix)
+			DisplayLabel.Text = string.format('%s: %s/%s', Info.Text, Slider.Value .. Suffix, Slider.Max .. Suffix) -- Display the text correctly
 			local X = math.ceil(Library:MapValue(Slider.Value, Slider.Min, Slider.Max, 0, Slider.MaxSize))
 			Fill.Size = UDim2.new(0, X, 1, 0)
 			HideBorderRight.Visible = not (X == Slider.MaxSize or X == 0)
@@ -1909,7 +1909,7 @@ do
 		Options[Idx] = Slider
 	
 		return Slider
-	end	
+	end
 	
 	function Funcs:AddDropdown(Idx, Info)
 		if Info.SpecialType == 'Player' then
