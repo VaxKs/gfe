@@ -102,7 +102,6 @@ end
 
 get("player").new = function(self, player)
 	local function cache(character)
-		print("caching", character)
 		self.cache[character] = {
 			["player"] = player,
 			["drawings"] = {
@@ -136,7 +135,6 @@ get("player").new = function(self, player)
 end
 
 get("player").remove = function(self, player)
-	print("removing", player)
 	if player:IsA("Player") then
 		local character = self:find(player)
 		if character then
