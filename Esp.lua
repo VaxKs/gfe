@@ -61,7 +61,6 @@ declare(get("loop"), "connection", cloneref(game:GetService("RunService")).Rende
 			end)
 
 			if not success then
-				warn(result)
 			end
 		end
 	end
