@@ -1,8 +1,10 @@
 local httpService = game:GetService('HttpService')
 
 local SaveManager = {} do
-	SaveManager.Folder = 'LinoriaLibSettings'
-	SaveManager.Ignore = {}
+    SaveManager.Folder = 'LinoriaLibSettings'
+    SaveManager.Ignore = {}
+    SaveManager.CustomSaveData = {}
+    SaveManager.CustomLoadData = {}
 	SaveManager.Parser = {
 		Toggle = {
 			Save = function(idx, object) 
@@ -79,57 +81,68 @@ local SaveManager = {} do
 	end
 
 	function SaveManager:Save(name)
-		if (not name) then
-			return false, 'no config file is selected'
-		end
+        if (not name) then
+            return false, 'no config file is selected'
+        end
 
-		local fullPath = self.Folder .. '/settings/' .. name .. '.json'
+        local fullPath = self.Folder .. '/settings/' .. name .. '.json'
 
-		local data = {
-			objects = {}
-		}
+        local data = {
+            objects = {},
+            custom = {}
+        }
 
-		for idx, toggle in next, Toggles do
-			if self.Ignore[idx] then continue end
+        -- Save UI elements
+        for idx, toggle in next, Toggles do
+            if self.Ignore[idx] then continue end
+            table.insert(data.objects, self.Parser[toggle.Type].Save(idx, toggle))
+        end
 
-			table.insert(data.objects, self.Parser[toggle.Type].Save(idx, toggle))
-		end
+        for idx, option in next, Options do
+            if not self.Parser[option.Type] then continue end
+            if self.Ignore[idx] then continue end
+            table.insert(data.objects, self.Parser[option.Type].Save(idx, option))
+        end
 
-		for idx, option in next, Options do
-			if not self.Parser[option.Type] then continue end
-			if self.Ignore[idx] then continue end
+        for name, callback in pairs(self.CustomSaveData) do
+            data.custom[name] = callback()
+        end
 
-			table.insert(data.objects, self.Parser[option.Type].Save(idx, option))
-		end	
+        local success, encoded = pcall(httpService.JSONEncode, httpService, data)
+        if not success then
+            return false, 'failed to encode data'
+        end
 
-		local success, encoded = pcall(httpService.JSONEncode, httpService, data)
-		if not success then
-			return false, 'failed to encode data'
-		end
+        writefile(fullPath, encoded)
+        return true
+    end
 
-		writefile(fullPath, encoded)
-		return true
-	end
 
-	function SaveManager:Load(name)
-		if (not name) then
-			return false, 'no config file is selected'
-		end
-		
-		local file = self.Folder .. '/settings/' .. name .. '.json'
-		if not isfile(file) then return false, 'invalid file' end
+    function SaveManager:Load(name)
+        if (not name) then
+            return false, 'no config file is selected'
+        end
+        
+        local file = self.Folder .. '/settings/' .. name .. '.json'
+        if not isfile(file) then return false, 'invalid file' end
 
-		local success, decoded = pcall(httpService.JSONDecode, httpService, readfile(file))
-		if not success then return false, 'decode error' end
+        local success, decoded = pcall(httpService.JSONDecode, httpService, readfile(file))
+        if not success then return false, 'decode error' end
 
-		for _, option in next, decoded.objects do
-			if self.Parser[option.type] then
-				task.spawn(function() self.Parser[option.type].Load(option.idx, option) end)
-			end
-		end
+        for _, option in next, decoded.objects do
+            if self.Parser[option.type] then
+                task.spawn(function() self.Parser[option.type].Load(option.idx, option) end)
+            end
+        end
 
-		return true
-	end
+        for name, callback in pairs(self.CustomLoadData) do
+            if decoded.custom[name] then
+                callback(decoded.custom[name])
+            end
+        end
+
+        return true
+    end
 
 	function SaveManager:Delete(name)
 		if (not name) then
