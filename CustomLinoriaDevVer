@@ -421,166 +421,126 @@ end))
 local BaseAddons = {};
 
 do
-    local Funcs = {};
+    local Funcs = {}
 
     function Funcs:AddColorPicker(Idx, Info)
-        local ToggleLabel = self.TextLabel;
-        local Container = self.Container;
+        local ToggleLabel = self.TextLabel
+        local Container = self.Container
 
         local ColorPicker = {
-            Value = Info.Default;
-            Type = 'ColorPicker';
+            Value = Info.Default,
+            Type = 'ColorPicker',
             Title = type(Info.Title) == 'string' and Info.Title or 'Color picker',
-        };
+        }
 
         function ColorPicker:SetHSVFromRGB(Color)
-            local H, S, V = Color3.toHSV(Color);
+            local H, S, V = Color3.toHSV(Color)
+            ColorPicker.Hue = H
+            ColorPicker.Sat = S
+            ColorPicker.Vib = V
+        end
 
-            ColorPicker.Hue = H;
-            ColorPicker.Sat = S;
-            ColorPicker.Vib = V;
-        end;
-
-        ColorPicker:SetHSVFromRGB(ColorPicker.Value);
+        ColorPicker:SetHSVFromRGB(ColorPicker.Value)
 
         local DisplayFrame = Library:Create('Frame', {
-            BackgroundColor3 = ColorPicker.Value;
-            BorderColor3 = Library:GetDarkerColor(ColorPicker.Value);
-            BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(0, 28, 0, 14);
-            ZIndex = 6;
-            Parent = ToggleLabel;
-        });
+            BackgroundColor3 = ColorPicker.Value,
+            BorderColor3 = Library:GetDarkerColor(ColorPicker.Value),
+            BorderMode = Enum.BorderMode.Inset,
+            Size = UDim2.new(0, 28, 0, 14),
+            ZIndex = 6,
+            Parent = ToggleLabel,
+        })
 
-        local RelativeOffset = 0;
+        local RelativeOffset = 0
 
         for _, Element in next, Container:GetChildren() do
             if not Element:IsA('UIListLayout') then
-                RelativeOffset = RelativeOffset + Element.Size.Y.Offset;
-            end;
-        end;
+                RelativeOffset = RelativeOffset + Element.Size.Y.Offset
+            end
+        end
 
         local PickerFrameOuter = Library:Create('Frame', {
-            Name = 'Color';
-            BackgroundColor3 = Color3.new(1, 1, 1);
-            BorderColor3 = Color3.new(0, 0, 0);
-            Position = UDim2.new(0, 4, 0, 20 + RelativeOffset + 1);
-            Size = UDim2.new(1, -13, 0, 253);
-            Visible = false;
-            ZIndex = 20;
-            Parent = Container.Parent;
-        });
+            Name = 'Color',
+            BackgroundColor3 = Color3.new(1, 1, 1),
+            BorderColor3 = Color3.new(0, 0, 0),
+            Position = UDim2.new(0, 4, 0, 20 + RelativeOffset + 1),
+            Size = UDim2.new(1, -13, 0, 253),
+            Visible = false,
+            ZIndex = 20,
+            Parent = Container.Parent,
+        })
 
         local PickerFrameInner = Library:Create('Frame', {
-            BackgroundColor3 = Library.BackgroundColor;
-            BorderColor3 = Library.OutlineColor;
-            BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(1, 0, 1, 0);
-            ZIndex = 21;
-            Parent = PickerFrameOuter;
-        });
+            BackgroundColor3 = Color3.new(0.2, 0.2, 0.2),
+            BorderColor3 = Color3.new(0, 0, 0),
+            BorderMode = Enum.BorderMode.Inset,
+            Size = UDim2.new(1, 0, 1, 0),
+            ZIndex = 21,
+            Parent = PickerFrameOuter,
+        })
 
         local Highlight = Library:Create('Frame', {
-            BackgroundColor3 = Library.AccentColor;
-            BorderSizePixel = 0;
-            Size = UDim2.new(1, 0, 0, 2);
-            ZIndex = 22;
-            Parent = PickerFrameInner;
-        });
+            BackgroundColor3 = Color3.new(1, 0, 0),
+            BorderSizePixel = 0,
+            Size = UDim2.new(1, 0, 0, 2),
+            ZIndex = 22,
+            Parent = PickerFrameInner,
+        })
 
         local SatVibMapOuter = Library:Create('Frame', {
-            BorderColor3 = Color3.new(0, 0, 0);
-            Position = UDim2.new(0, 4, 0, 25);
-            Size = UDim2.new(0, 200, 0, 200);
-            ZIndex = 22;
-            Parent = PickerFrameInner;
-        });
+            BorderColor3 = Color3.new(0, 0, 0),
+            Position = UDim2.new(0, 4, 0, 25),
+            Size = UDim2.new(0, 200, 0, 200),
+            ZIndex = 23,
+            Parent = PickerFrameInner,
+        })
 
         local SatVibMapInner = Library:Create('ImageLabel', {
-            BackgroundColor3 = Color3.new(1, 1, 1);
-            BorderSizePixel = 0;
-            Image = 'rbxassetid://4155801252';
-            Size = UDim2.new(1, 0, 1, 0);
-            ZIndex = 23;
-            Parent = SatVibMapOuter;
-        });
-
-        local Selector = Library:Create('ImageLabel', {
-            AnchorPoint = Vector2.new(0.5, 0.5);
-            BackgroundTransparency = 1;
-            Image = 'rbxassetid://4953646208';
-            Position = UDim2.new(ColorPicker.Sat, 0, 1 - ColorPicker.Vib, 0);
-            Size = UDim2.new(0, 10, 0, 10);
-            ZIndex = 24;
-            Parent = SatVibMapInner;
-        });
+            BackgroundColor3 = Color3.new(1, 1, 1),
+            BorderSizePixel = 0,
+            Size = UDim2.new(1, 0, 1, 0),
+            ZIndex = 24,
+            Image = "rbxassetid://4155801252", -- Gradient map asset for saturation/value
+            Parent = SatVibMapOuter,
+        })
 
         local HueSelectorOuter = Library:Create('Frame', {
-            BackgroundColor3 = Color3.new(1, 1, 1);
-            BorderColor3 = Color3.new(0, 0, 0);
-            Position = UDim2.new(0, 210, 0, 25);
-            Size = UDim2.new(0, 15, 0, 200);
-            ZIndex = 22;
-            Parent = PickerFrameInner;
-        });
+            BackgroundColor3 = Color3.new(1, 1, 1),
+            BorderColor3 = Color3.new(0, 0, 0),
+            Position = UDim2.new(0, 4, 0, 230),
+            Size = UDim2.new(1, -8, 0, 20),
+            ZIndex = 25,
+            Parent = PickerFrameInner,
+        })
 
         local HueSelectorInner = Library:Create('Frame', {
-            BackgroundColor3 = Color3.new(1, 1, 1);
-            BorderSizePixel = 0;
-            Size = UDim2.new(1, -2, 1, -2);
-            ZIndex = 23;
-            Parent = HueSelectorOuter;
-        });
+            BackgroundColor3 = Color3.new(1, 1, 1),
+            BorderColor3 = Color3.new(0, 0, 0),
+            Size = UDim2.new(1, 0, 1, 0),
+            ZIndex = 26,
+            Parent = HueSelectorOuter,
+        })
 
         local HueBoxOuter = Library:Create('Frame', {
-            BackgroundColor3 = Color3.new(1, 1, 1);
-            BorderColor3 = Color3.new(0, 0, 0);
-            Position = UDim2.new(0, 0, 0, 5);
-            Size = UDim2.new(1, 0, 0, 10);
-            ZIndex = 23;
-            Parent = HueSelectorInner;
-        });
+            BorderColor3 = Color3.new(0, 0, 0),
+            Position = UDim2.new(1, -12, 0, 25),
+            Size = UDim2.new(0, 12, 0, 200),
+            ZIndex = 23,
+            Parent = PickerFrameInner,
+        })
 
-        local HueBoxInner = Library:Create('Frame', {
-            BackgroundColor3 = Color3.fromHSV(ColorPicker.Hue, 1, 1);
-            BorderSizePixel = 0;
-            Size = UDim2.new(1, 0, 1, 0);
-            ZIndex = 24;
-            Parent = HueBoxOuter;
-        });
+        local HueBoxInner = Library:Create('ImageLabel', {
+            BackgroundColor3 = Color3.new(1, 1, 1),
+            BorderSizePixel = 0,
+            Size = UDim2.new(1, 0, 1, 0),
+            ZIndex = 24,
+            Image = "rbxassetid://4155801252", -- Gradient map asset for hue
+            Parent = HueBoxOuter,
+        })
+    end
 
-        local HueSlider = Library:Create('ImageLabel', {
-            AnchorPoint = Vector2.new(0.5, 0.5);
-            BackgroundTransparency = 1;
-            Image = 'rbxassetid://4953646208';
-            Position = UDim2.new(0.5, 0, ColorPicker.Hue, 0);
-            Size = UDim2.new(0, 10, 0, 10);
-            ZIndex = 25;
-            Parent = HueBoxInner;
-        });
-
-        local RgbBox = Library:Create('TextBox', {
-            BackgroundTransparency = 1;
-            Position = UDim2.new(0, 4, 0, 230);
-            Size = UDim2.new(1, -8, 0, 20);
-            Font = Enum.Font.Code;
-            PlaceholderText = '255, 255, 255';
-            Text = table.concat({ math.floor(ColorPicker.Value.R * 255), math.floor(ColorPicker.Value.G * 255), math.floor(ColorPicker.Value.B * 255) }, ', ');
-            TextColor3 = Library.FontColor;
-            TextSize = 14;
-            TextStrokeTransparency = 0;
-            TextXAlignment = Enum.TextXAlignment.Left;
-            ZIndex = 23;
-            Parent = PickerFrameInner;
-        });
-
-        table.insert(Library.ColorPickers, ColorPicker);
-        table.insert(Funcs[Idx], ColorPicker);
-    end;
-
-    return Funcs;
+    return Funcs
 end
-
 
 	function Funcs:AddKeyPicker(Idx, Info)
 		local ParentObj = self;
