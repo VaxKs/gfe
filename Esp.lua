@@ -181,50 +181,77 @@ get("player").update = function(self, character, data)
 			return color
 		end
 
-        if visible and check() then
-            local scale = 1 / (position.Z * math.tan(math.rad(camera.FieldOfView * 0.5)) * 2) * 1000
-            local width, height = math.floor(4.5 * scale), math.floor(6 * scale)
-            local x, y = math.floor(position.X), math.floor(position.Y)
-            local xPosition, yPosition = math.floor(x - width * 0.5), math.floor((y - height * 0.5) + (0.5 * scale))
-        
-            if drawings.box.ZIndex ~= nil then
-                drawings.boxOutline.ZIndex = drawings.box.ZIndex - 1
-                drawings.boxFilled.ZIndex = drawings.boxOutline.ZIndex - 1
-            else
-                drawings.boxOutline.ZIndex = 0
-                drawings.boxFilled.ZIndex = 0
-            end
-        
-            drawings.box.Size = Vector2.new(width, height)
-            drawings.box.Position = Vector2.new(xPosition, yPosition)
-            drawings.boxFilled.Size = drawings.box.Size
-            drawings.boxFilled.Position = drawings.box.Position
-            drawings.boxOutline.Size = drawings.box.Size
-            drawings.boxOutline.Position = drawings.box.Position
-        
-            drawings.box.Color = color(visuals.boxes.color)
-            drawings.box.Thickness = 1
-            drawings.boxFilled.Color = color(visuals.boxes.filled.color)
-            drawings.boxFilled.Transparency = visuals.boxes.filled.transparency
-            drawings.boxOutline.Color = visuals.boxes.outline.color
-            drawings.boxOutline.Thickness = 3
-        
-            drawings.name.Text = `[ {player.Name} ]`
-            drawings.name.Size = math.max(math.min(math.abs(12.5 * scale), 12.5), 10)
-            drawings.name.Position = Vector2.new(x, (yPosition - drawings.name.TextBounds.Y) - 2)
-            drawings.name.Color = color(visuals.names.color)
-            drawings.name.Outline = visuals.names.outline.enabled
-            drawings.name.OutlineColor = visuals.names.outline.color
-        
-            drawings.name.ZIndex = (drawings.box.ZIndex or 0) + 1
-        
-            local healthPercent = 100 / (humanoid.MaxHealth / humanoid.Health)
-        
-            drawings.healthOutline.From = Vector2.new(xPosition - 5, yPosition)
-            drawings.healthOutline.To = Vector2.new(xPosition - 5, yPosition + height)
-            drawings.health.From = Vector2.new(xPosition - 5, (yPosition + height) - 1)
-            drawings.health.To = Vector2.new(xPosition - 5, (drawings.health.From.Y) - (height * (healthPercent / 100)))
-        end
+		if visible and check() then
+			local scale = 1 / (position.Z * math.tan(math.rad(camera.FieldOfView * 0.5)) * 2) * 1000
+			local width, height = math.floor(4.5 * scale), math.floor(6 * scale)
+			local x, y = math.floor(position.X), math.floor(position.Y)
+			local xPosition, yPostion = math.floor(x - width * 0.5), math.floor((y - height * 0.5) + (0.5 * scale))
+            --// Deafultes \\--
+            drawings.boxOutline.ZIndex = 0
+            drawings.boxFilled.ZIndex = 0 
+            drawings.name.ZIndex = 0
+            drawings.healthOutline.ZIndex = 0
+
+			drawings.box.Size = Vector2.new(width, height)
+			drawings.box.Position = Vector2.new(xPosition, yPostion)
+			drawings.boxFilled.Size = drawings.box.Size
+			drawings.boxFilled.Position = drawings.box.Position
+			drawings.boxOutline.Size = drawings.box.Size
+			drawings.boxOutline.Position = drawings.box.Position
+
+			drawings.box.Color = color(visuals.boxes.color)
+			drawings.box.Thickness = 1
+			drawings.boxFilled.Color = color(visuals.boxes.filled.color)
+			drawings.boxFilled.Transparency = visuals.boxes.filled.transparency
+			drawings.boxOutline.Color = visuals.boxes.outline.color
+			drawings.boxOutline.Thickness = 3
+
+			drawings.boxOutline.ZIndex = drawings.box.ZIndex - 1
+			drawings.boxFilled.ZIndex = drawings.boxOutline.ZIndex - 1
+
+
+			drawings.name.Text = `[ {player.Name} ]`
+			drawings.name.Size = math.max(math.min(math.abs(12.5 * scale), 12.5), 10)
+			drawings.name.Position = Vector2.new(x, (yPostion - drawings.name.TextBounds.Y) - 2)
+			drawings.name.Color = color(visuals.names.color)
+			drawings.name.Outline = visuals.names.outline.enabled
+			drawings.name.OutlineColor = visuals.names.outline.color
+
+			drawings.name.ZIndex = drawings.box.ZIndex + 1
+
+			local healthPercent = 100 / (humanoid.MaxHealth / humanoid.Health)
+		
+			drawings.healthOutline.From = Vector2.new(xPosition - 5, yPostion)
+			drawings.healthOutline.To = Vector2.new(xPosition - 5, yPostion + height)
+			drawings.health.From = Vector2.new(xPosition - 5, (yPostion + height) - 1)
+			drawings.health.To = Vector2.new(xPosition - 5, ((drawings.health.From.Y - ((height / 100) * healthPercent))) + 2)
+			drawings.healthText.Text = `[ HP {math.floor(humanoid.Health)} ]`
+			drawings.healthText.Size = math.max(math.min(math.abs(11 * scale), 11), 10)
+			drawings.healthText.Position = Vector2.new(drawings.health.To.X - (drawings.healthText.TextBounds.X + 3), (drawings.health.To.Y - (2 / scale)))
+
+			drawings.health.Color = visuals.health.colorLow:Lerp(visuals.health.color, healthPercent * 0.01)
+			drawings.healthOutline.Color = visuals.health.outline.color
+			drawings.healthOutline.Thickness = 3
+			drawings.healthText.Color = drawings.health.Color
+			drawings.healthText.Outline = visuals.health.text.outline.enabled
+			drawings.healthText.OutlineColor = visuals.health.outline.color
+
+			drawings.healthOutline.ZIndex = drawings.health.ZIndex - 1
+
+			drawings.distance.Text = `[ {math.floor(data.distance)} ]`
+			drawings.distance.Size = math.max(math.min(math.abs(11 * scale), 11), 10)
+			drawings.distance.Position = Vector2.new(x, (yPostion + height) + (drawings.distance.TextBounds.Y * 0.25))
+			drawings.distance.Color = color(visuals.distance.color)
+			drawings.distance.Outline = visuals.distance.outline.enabled
+			drawings.distance.OutlineColor = visuals.distance.outline.color
+			
+			drawings.weapon.Text = `[ {weapon} ]`
+			drawings.weapon.Size = math.max(math.min(math.abs(11 * scale), 11), 10)
+			drawings.weapon.Position = visuals.distance.enabled and Vector2.new(drawings.distance.Position.x, drawings.distance.Position.Y + (drawings.weapon.TextBounds.Y * 0.75)) or drawings.distance.Position
+			drawings.weapon.Color = color(visuals.weapon.color)
+			drawings.weapon.Outline = visuals.weapon.outline.enabled
+			drawings.weapon.OutlineColor = visuals.weapon.outline.color
+		end
 
 		drawings.box.Visible = (check() and visible and visuals.boxes.enabled)
 		drawings.boxFilled.Visible = (check() and drawings.box.Visible and visuals.boxes.filled.enabled)
