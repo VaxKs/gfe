@@ -186,6 +186,11 @@ get("player").update = function(self, character, data)
 			local width, height = math.floor(4.5 * scale), math.floor(6 * scale)
 			local x, y = math.floor(position.X), math.floor(position.Y)
 			local xPosition, yPostion = math.floor(x - width * 0.5), math.floor((y - height * 0.5) + (0.5 * scale))
+            --// Deafultes \\--
+            drawings.boxOutline.ZIndex = 0
+            drawings.boxFilled.ZIndex = 0 
+            drawings.name.ZIndex = 0
+            drawings.healthOutline.ZIndex = 0
 
 			drawings.box.Size = Vector2.new(width, height)
 			drawings.box.Position = Vector2.new(xPosition, yPostion)
@@ -203,6 +208,7 @@ get("player").update = function(self, character, data)
 
 			drawings.boxOutline.ZIndex = drawings.box.ZIndex - 1
 			drawings.boxFilled.ZIndex = drawings.boxOutline.ZIndex - 1
+
 
 			drawings.name.Text = `[ {player.Name} ]`
 			drawings.name.Size = math.max(math.min(math.abs(12.5 * scale), 12.5), 10)
