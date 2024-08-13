@@ -187,10 +187,13 @@ get("player").update = function(self, character, data)
             local x, y = math.floor(position.X), math.floor(position.Y)
             local xPosition, yPosition = math.floor(x - width * 0.5), math.floor((y - height * 0.5) + (0.5 * scale))
         
-            drawings.boxOutline.ZIndex = 0
-            drawings.boxFilled.ZIndex = 0 
-            drawings.name.ZIndex = 0
-            drawings.healthOutline.ZIndex = 0
+            if drawings.box.ZIndex ~= nil then
+                drawings.boxOutline.ZIndex = drawings.box.ZIndex - 1
+                drawings.boxFilled.ZIndex = drawings.boxOutline.ZIndex - 1
+            else
+                drawings.boxOutline.ZIndex = 0
+                drawings.boxFilled.ZIndex = 0
+            end
         
             drawings.box.Size = Vector2.new(width, height)
             drawings.box.Position = Vector2.new(xPosition, yPosition)
@@ -206,9 +209,6 @@ get("player").update = function(self, character, data)
             drawings.boxOutline.Color = visuals.boxes.outline.color
             drawings.boxOutline.Thickness = 3
         
-            drawings.boxOutline.ZIndex = (drawings.box.ZIndex or 1) - 1
-            drawings.boxFilled.ZIndex = (drawings.boxOutline.ZIndex or 0) - 1
-        
             drawings.name.Text = `[ {player.Name} ]`
             drawings.name.Size = math.max(math.min(math.abs(12.5 * scale), 12.5), 10)
             drawings.name.Position = Vector2.new(x, (yPosition - drawings.name.TextBounds.Y) - 2)
@@ -216,14 +216,14 @@ get("player").update = function(self, character, data)
             drawings.name.Outline = visuals.names.outline.enabled
             drawings.name.OutlineColor = visuals.names.outline.color
         
-            drawings.name.ZIndex = (drawings.box.ZIndex or 1) + 1
+            drawings.name.ZIndex = (drawings.box.ZIndex or 0) + 1
         
             local healthPercent = 100 / (humanoid.MaxHealth / humanoid.Health)
-            
+        
             drawings.healthOutline.From = Vector2.new(xPosition - 5, yPosition)
             drawings.healthOutline.To = Vector2.new(xPosition - 5, yPosition + height)
             drawings.health.From = Vector2.new(xPosition - 5, (yPosition + height) - 1)
-            drawings.health.To = Vector2.new(xPosition - 5, (drawings.health.From.Y or 0) - height * (healthPercent / 100))
+            drawings.health.To = Vector2.new(xPosition - 5, (drawings.health.From.Y) - (height * (healthPercent / 100)))
         end
 
 		drawings.box.Visible = (check() and visible and visuals.boxes.enabled)
